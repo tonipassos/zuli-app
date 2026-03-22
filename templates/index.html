@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zuli — App + Documentos Jurídicos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --creme:#FAF7F2; --creme2:#F2EDE4; --ouro:#C9A96E; --ouro2:#E8C98A;
+  --escuro:#1C1612; --escuro2:#2E2720; --rosa:#E8B4B8; --rosa2:#F5D9DB;
+  --cinza:#9A8E85; --verde:#3D9970; --verde-cl:#E8F5EE; --borda:#EAE4DC;
+  --vermelho:#C0392B;
+}
+
+body {
+  background:#1C1612;
+  display:flex; align-items:flex-start; justify-content:center;
+  min-height:100vh;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  padding:32px 16px;
+  gap:48px;
+  flex-wrap:wrap;
+}
+
+/* ── PHONE ── */
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
+
+.scene-label {
+  font-size:11px; font-weight:600; letter-spacing:3px;
+  text-transform:uppercase; color:rgba(255,255,255,0.25);
+}
+
+.phone {
+  width:375px; height:812px;
+  background:var(--creme); border-radius:52px; overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 10px #2a2420, 0 0 0 12px #3a3028,
+             0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(201,169,110,0.1);
+}
+
+.notch {
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:120px; height:30px; background:#2a2420;
+  border-radius:0 0 20px 20px; z-index:100;
+}
+
+.status-bar {
+  position:absolute; top:0; left:0; right:0; height:44px;
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 24px 6px; z-index:99; font-size:12px; font-weight:600;
+  color:var(--escuro);
+}
+.status-bar.light { color:var(--creme); }
+.status-icons { display:flex; gap:6px; align-items:center; }
+
+/* screens */
+.screen {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  overflow:hidden; display:none; flex-direction:column;
+}
+.screen.active { display:flex; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+.screen.active { animation:fadeIn .3s ease; }
+
+/* ── SPLASH ── */
+#splash { background:var(--escuro); align-items:center; justify-content:center; }
+.splash-bg {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(201,169,110,.18) 0%,transparent 70%),
+             radial-gradient(ellipse 40% 40% at 80% 80%,rgba(232,180,184,.1) 0%,transparent 60%);
+}
+.splash-logo { position:relative; z-index:2; text-align:center; }
+.wordmark { font-family:'Fraunces',serif; font-size:72px; font-weight:900; color:var(--creme); letter-spacing:-2px; line-height:1; }
+.wordmark span {
+  background:linear-gradient(135deg,var(--ouro),var(--ouro2),var(--ouro));
+  background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+}
+.tagline { font-size:13px; font-weight:300; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-top:10px; }
+.splash-btn {
+  position:relative; z-index:2; margin-top:56px;
+  background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro);
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:15px;
+  padding:18px 56px; border:none; border-radius:100px; cursor:pointer;
+  box-shadow:0 8px 32px rgba(201,169,110,.35); transition:transform .2s;
+}
+.splash-btn:hover { transform:scale(1.03); }
+.splash-links { position:relative; z-index:2; margin-top:20px; display:flex; gap:20px; }
+.splash-link {
+  font-size:12px; color:rgba(255,255,255,.35); cursor:pointer;
+  text-decoration:underline; background:none; border:none; font-family:'Plus Jakarta Sans',sans-serif;
+}
+.splash-link:hover { color:var(--ouro); }
+
+/* ── HOME ── */
+#home { background:var(--creme); }
+.home-header { background:var(--escuro); padding:52px 24px 28px; position:relative; overflow:hidden; }
+.home-header::after { content:''; position:absolute; bottom:-30px; right:-30px; width:120px; height:120px; border-radius:50%; background:rgba(201,169,110,.12); }
+.home-header-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
+.home-greeting { font-size:13px; color:rgba(255,255,255,.45); font-weight:300; margin-bottom:4px; }
+.home-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--creme); }
+.avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--ouro),var(--rosa)); display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid rgba(255,255,255,.15); }
+.search-bar { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.4); font-size:14px; }
+.home-scroll { flex:1; overflow-y:auto; padding:20px 20px 100px; scrollbar-width:none; }
+.home-scroll::-webkit-scrollbar { display:none; }
+.section-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; color:var(--escuro); margin-bottom:14px; }
+.cats { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; margin-bottom:24px; scrollbar-width:none; }
+.cats::-webkit-scrollbar { display:none; }
+.cat-chip { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; cursor:pointer; }
+.cat-icon { width:56px; height:56px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:22px; transition:transform .2s; }
+.cat-chip:hover .cat-icon { transform:scale(1.08); }
+.cat-icon.c1{background:var(--rosa2)} .cat-icon.c2{background:#E8F0E8} .cat-icon.c3{background:#F0EAE0} .cat-icon.c4{background:#E8EAF5} .cat-icon.c5{background:#F5EAF0}
+.cat-label { font-size:11px; font-weight:500; color:var(--cinza); white-space:nowrap; }
+.prof-cards { display:flex; gap:14px; overflow-x:auto; padding-bottom:4px; margin-bottom:24px; scrollbar-width:none; }
+.prof-cards::-webkit-scrollbar { display:none; }
+.prof-card { flex-shrink:0; width:160px; background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.06); cursor:pointer; transition:transform .2s,box-shadow .2s; }
+.prof-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,.1); }
+.prof-img { height:110px; display:flex; align-items:center; justify-content:center; font-size:40px; position:relative; }
+.prof-img.p1{background:linear-gradient(135deg,#F5D9DB,#E8B4B8)} .prof-img.p2{background:linear-gradient(135deg,#D9EAD9,#B4D4B8)} .prof-img.p3{background:linear-gradient(135deg,#F5EAD9,#E8C9A0)}
+.prof-badge { position:absolute; top:8px; right:8px; background:var(--escuro); color:var(--ouro); font-size:10px; font-weight:700; padding:3px 8px; border-radius:100px; }
+.prof-info { padding:10px 12px; }
+.prof-name { font-weight:600; font-size:13px; color:var(--escuro); margin-bottom:3px; }
+.prof-role { font-size:11px; color:var(--cinza); margin-bottom:6px; }
+.prof-meta { display:flex; justify-content:space-between; align-items:center; }
+.prof-rating { font-size:11px; color:var(--escuro); font-weight:600; }
+.prof-price { font-size:12px; font-weight:700; color:var(--ouro); }
+.next-card { background:var(--escuro); border-radius:20px; padding:18px 20px; display:flex; align-items:center; gap:16px; margin-bottom:12px; cursor:pointer; }
+.next-dot { width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.next-info { flex:1; }
+.next-name { font-weight:600; font-size:14px; color:var(--creme); margin-bottom:3px; }
+.next-detail { font-size:12px; color:rgba(255,255,255,.4); }
+.next-time { font-family:'Fraunces',serif; font-size:13px; font-weight:700; color:var(--ouro); text-align:right; }
+
+/* ── PERFIL ── */
+#perfil { background:var(--creme); }
+.perfil-cover { height:180px; background:linear-gradient(135deg,#F5D9DB 0%,#E8B4B8 50%,#C9A0A4 100%); display:flex; align-items:center; justify-content:center; font-size:70px; position:relative; }
+.perfil-avatar { position:absolute; bottom:-32px; left:24px; width:72px; height:72px; border-radius:22px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); border:3px solid var(--creme); display:flex; align-items:center; justify-content:center; font-size:32px; }
+.perfil-scroll { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:100px; }
+.perfil-scroll::-webkit-scrollbar { display:none; }
+.perfil-info { padding:44px 24px 20px; border-bottom:1px solid var(--borda); }
+.perfil-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--escuro); margin-bottom:4px; }
+.perfil-role { font-size:14px; color:var(--cinza); margin-bottom:12px; }
+.perfil-stats { display:flex; gap:24px; }
+.stat-num { font-family:'Fraunces',serif; font-size:20px; font-weight:700; color:var(--escuro); }
+.stat-label { font-size:11px; color:var(--cinza); }
+.servicos { padding:20px 24px; border-bottom:1px solid var(--borda); }
+.servico-item { display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--borda); cursor:pointer; }
+.servico-item:last-child { border-bottom:none; }
+.servico-nome { font-size:14px; font-weight:500; color:var(--escuro); margin-bottom:3px; }
+.servico-tempo { font-size:12px; color:var(--cinza); }
+.servico-preco { font-family:'Fraunces',serif; font-size:16px; font-weight:700; color:var(--ouro); }
+.avaliacoes { padding:20px 24px; }
+.aval-item { background:white; border-radius:16px; padding:14px 16px; margin-bottom:10px; }
+.aval-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+.aval-nome { font-size:13px; font-weight:600; color:var(--escuro); }
+.aval-text { font-size:13px; color:var(--cinza); line-height:1.5; }
+.btn-agendar { position:absolute; bottom:100px; left:24px; right:24px; background:linear-gradient(135deg,var(--escuro),var(--escuro2)); color:var(--ouro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.2); transition:transform .2s; }
+.btn-agendar:hover { transform:scale(1.02); }
+
+/* ── AGENDA ── */
+#agenda { background:var(--creme); }
+.agenda-header { padding:52px 24px 20px; background:white; border-bottom:1px solid var(--borda); }
+.agenda-title { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--escuro); margin-bottom:4px; }
+.agenda-sub { font-size:13px; color:var(--cinza); }
+.agenda-scroll { flex:1; overflow-y:auto; padding:20px 24px 120px; scrollbar-width:none; }
+.agenda-scroll::-webkit-scrollbar { display:none; }
+.cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.cal-month { font-family:'Fraunces',serif; font-size:16px; font-weight:700; color:var(--escuro); }
+.cal-nav { display:flex; gap:8px; }
+.cal-nav button { width:28px; height:28px; border-radius:8px; background:var(--creme2); border:none; cursor:pointer; font-size:14px; }
+.cal-days-header { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:8px; }
+.cal-day-name { font-size:11px; font-weight:600; color:var(--cinza); padding:4px 0; }
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:24px; }
+.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:13px; font-weight:500; color:var(--escuro); cursor:pointer; transition:all .15s; }
+.cal-day:hover{background:var(--creme2)} .cal-day.other{color:rgba(0,0,0,.2)} .cal-day.today{background:var(--creme2);font-weight:700} .cal-day.selected{background:var(--escuro);color:var(--ouro);font-weight:700}
+.horarios-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
+.horario-chip { background:white; border:1.5px solid var(--borda); border-radius:12px; padding:12px 8px; text-align:center; font-size:14px; font-weight:500; color:var(--escuro); cursor:pointer; transition:all .15s; }
+.horario-chip:hover{border-color:var(--ouro)} .horario-chip.selected{background:var(--escuro);color:var(--ouro);border-color:var(--escuro)} .horario-chip.ocupado{color:rgba(0,0,0,.2);pointer-events:none}
+.resumo-card { background:white; border-radius:20px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,.05); margin-bottom:16px; }
+.resumo-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--borda); font-size:13px; }
+.resumo-row:last-child{border-bottom:none} .resumo-row .label{color:var(--cinza)} .resumo-row .value{font-weight:600;color:var(--escuro)} .resumo-row .value.gold{color:var(--ouro);font-family:'Fraunces',serif;font-size:16px}
+.btn-confirmar { width:100%; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; box-shadow:0 8px 24px rgba(201,169,110,.35); transition:transform .2s; }
+.btn-confirmar:hover { transform:scale(1.02); }
+
+/* ── CONFIRMAÇÃO ── */
+#confirmacao { background:var(--escuro); align-items:center; justify-content:center; padding:40px 32px; }
+.confirm-bg { position:absolute; inset:0; background:radial-gradient(ellipse 70% 50% at 50% 20%,rgba(201,169,110,.15) 0%,transparent 60%); }
+.confirm-icon { width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); display:flex; align-items:center; justify-content:center; font-size:36px; margin-bottom:28px; position:relative; z-index:2; box-shadow:0 16px 40px rgba(201,169,110,.3); animation:fadeUp .5s ease .1s both; }
+.confirm-title { font-family:'Fraunces',serif; font-size:28px; font-weight:700; color:var(--creme); text-align:center; margin-bottom:8px; position:relative; z-index:2; animation:fadeUp .5s ease .2s both; }
+.confirm-sub { font-size:14px; color:rgba(255,255,255,.4); text-align:center; margin-bottom:40px; position:relative; z-index:2; line-height:1.6; animation:fadeUp .5s ease .3s both; }
+.confirm-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:24px; padding:24px; width:100%; position:relative; z-index:2; margin-bottom:28px; animation:fadeUp .5s ease .4s both; }
+.confirm-row { display:flex; align-items:center; gap:16px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+.confirm-row:last-child{border-bottom:none}
+.confirm-row-icon { width:36px; height:36px; border-radius:10px; background:rgba(201,169,110,.15); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.confirm-row-label{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:2px} .confirm-row-value{font-size:14px;font-weight:600;color:var(--creme)}
+.btn-home { width:100%; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; position:relative; z-index:2; box-shadow:0 8px 32px rgba(201,169,110,.3); transition:transform .2s; animation:fadeUp .5s ease .5s both; }
+.btn-home:hover { transform:scale(1.02); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position:absolute; bottom:0; left:0; right:0; height:84px; background:white; border-top:1px solid rgba(0,0,0,.06); display:flex; align-items:flex-start; padding-top:12px; box-shadow:0 -8px 24px rgba(0,0,0,.06); }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:4px 0; transition:opacity .2s; }
+.nav-item:hover{opacity:.7} .nav-icon{font-size:22px} .nav-label{font-size:10px;font-weight:500;color:var(--cinza)}
+.nav-item.active .nav-label{color:var(--ouro);font-weight:700}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--ouro);margin-top:-2px}
+
+/* ── BACK BTN ── */
+.back-btn { position:absolute; top:52px; left:20px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; color:white; z-index:10; border:none; }
+
+/* ── MODAL JURÍDICO ── */
+.modal-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,.7);
+  display:none; align-items:flex-end; z-index:200;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open { display:flex; }
+
+.modal-sheet {
+  background:var(--creme); width:100%; border-radius:28px 28px 0 0;
+  max-height:88%; display:flex; flex-direction:column;
+  animation:slideUp .35s ease;
+}
+
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.modal-handle { width:40px; height:4px; background:var(--borda); border-radius:100px; margin:14px auto 0; flex-shrink:0; }
+
+.modal-header {
+  padding:16px 24px 14px; border-bottom:1px solid var(--borda);
+  display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0;
+}
+
+.modal-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; color:var(--escuro); line-height:1.3; }
+.modal-subtitle { font-size:12px; color:var(--cinza); margin-top:3px; }
+
+.modal-close { width:32px; height:32px; border-radius:50%; background:var(--creme2); border:none; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+.modal-body { flex:1; overflow-y:auto; padding:20px 24px; scrollbar-width:thin; }
+.modal-body::-webkit-scrollbar { width:4px; }
+.modal-body::-webkit-scrollbar-thumb { background:var(--borda); border-radius:100px; }
+
+/* Estilos do conteúdo jurídico */
+.doc-section { margin-bottom:24px; }
+.doc-section h3 { font-family:'Fraunces',serif; font-size:15px; font-weight:700; color:var(--escuro); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--borda); }
+.doc-section p { font-size:13px; color:#4A4038; line-height:1.7; margin-bottom:8px; }
+.doc-section ul { padding-left:16px; margin-bottom:8px; }
+.doc-section ul li { font-size:13px; color:#4A4038; line-height:1.7; margin-bottom:4px; }
+.doc-section strong { color:var(--escuro); font-weight:600; }
+.doc-lei { display:inline-block; background:var(--creme2); color:var(--cinza); font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px; margin-left:4px; }
+
+.modal-footer { padding:16px 24px 24px; border-top:1px solid var(--borda); flex-shrink:0; }
+
+.accept-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; cursor:pointer; }
+.accept-check { width:22px; height:22px; border-radius:6px; border:2px solid var(--borda); background:white; display:flex; align-items:center; justify-content:center; font-size:12px; color:transparent; flex-shrink:0; margin-top:1px; transition:all .2s; }
+.accept-check.checked { background:var(--verde); border-color:var(--verde); color:white; }
+.accept-text { font-size:13px; color:var(--cinza); line-height:1.5; }
+.accept-text strong { color:var(--escuro); }
+
+.btn-aceitar {
+  width:100%; background:linear-gradient(135deg,var(--escuro),var(--escuro2));
+  color:var(--ouro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px;
+  padding:16px; border-radius:16px; border:none; cursor:pointer;
+  transition:opacity .2s; opacity:.4; pointer-events:none;
+}
+.btn-aceitar.ativo { opacity:1; pointer-events:auto; }
+
+/* ── PAINEL LATERAL (documentos) ── */
+.docs-panel {
+  width:420px; max-width:100%;
+  display:flex; flex-direction:column; gap:16px;
+}
+
+.doc-card {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px; padding:24px;
+}
+
+.doc-card-tag {
+  display:inline-block;
+  background:rgba(201,169,110,.15); color:var(--ouro2);
+  font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  padding:4px 12px; border-radius:100px; margin-bottom:12px;
+}
+
+.doc-card h2 {
+  font-family:'Fraunces',serif; font-size:20px; font-weight:700;
+  color:rgba(255,255,255,.9); margin-bottom:6px;
+}
+
+.doc-card p { font-size:13px; color:rgba(255,255,255,.45); line-height:1.6; margin-bottom:16px; }
+
+.doc-card .leis { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+.lei-chip { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); font-size:11px; font-weight:500; padding:4px 10px; border-radius:100px; }
+
+.btn-ver {
+  background:rgba(201,169,110,.15); color:var(--ouro);
+  border:1px solid rgba(201,169,110,.3);
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:13px;
+  padding:10px 20px; border-radius:100px; cursor:pointer; transition:all .2s;
+}
+.btn-ver:hover { background:rgba(201,169,110,.25); }
+
+.nav-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.nav-btns button {
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.5); font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:11px; font-weight:600; letter-spacing:1px;
+  padding:8px 14px; border-radius:100px; cursor:pointer; transition:all .2s;
+}
+.nav-btns button:hover, .nav-btns button.active {
+  background:rgba(201,169,110,.2); border-color:var(--ouro); color:var(--ouro2);
+}
+
+@media(max-width:900px) { .docs-panel { width:100%; max-width:500px; } body { flex-direction:column; align-items:center; } }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PHONE ═══════════════ -->
+<div class="phone-wrap">
+  <div class="scene-label">Zuli — Protótipo Interativo</div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="status-bar light" id="statusBar">
+      <span>9:41</span>
+      <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+    </div>
+
+    <!-- SPLASH -->
+    <div class="screen active" id="splash">
+      <div class="splash-bg"></div>
+      <div class="splash-logo">
+        <div class="wordmark">Z<span>uli</span></div>
+        <div class="tagline">Agende · Brilhe · Repita</div>
+      </div>
+      <button class="splash-btn" onclick="goTo('home')">Entrar</button>
+      <div class="splash-links">
+        <button class="splash-link" onclick="abrirModal('termos')">Termos de Uso</button>
+        <button class="splash-link" onclick="abrirModal('privacidade')">Privacidade</button>
+        <button class="splash-link" onclick="abrirModal('contrato')">Para Profissionais</button>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="screen" id="home">
+      <div class="home-header">
+        <div class="home-header-top">
+          <div><div class="home-greeting">Boa tarde,</div><div class="home-name">Ana Lima ✨</div></div>
+          <div class="avatar">👩</div>
+        </div>
+        <div class="search-bar"><span>🔍</span>Buscar serviço ou profissional...</div>
+      </div>
+      <div class="home-scroll">
+        <div class="section-title" style="margin-top:4px">Categorias</div>
+        <div class="cats">
+          <div class="cat-chip"><div class="cat-icon c1">💅</div><div class="cat-label">Unhas</div></div>
+          <div class="cat-chip"><div class="cat-icon c2">✂️</div><div class="cat-label">Cabelo</div></div>
+          <div class="cat-chip"><div class="cat-icon c3">🧖</div><div class="cat-label">Estética</div></div>
+          <div class="cat-chip"><div class="cat-icon c4">🧔</div><div class="cat-label">Barbearia</div></div>
+          <div class="cat-chip"><div class="cat-icon c5">💆</div><div class="cat-label">Massagem</div></div>
+        </div>
+        <div class="section-title">Em destaque</div>
+        <div class="prof-cards">
+          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p1">💅<div class="prof-badge">⭐ Top</div></div><div class="prof-info"><div class="prof-name">Camila Costa</div><div class="prof-role">Nail designer</div><div class="prof-meta"><div class="prof-rating">⭐ 4.9</div><div class="prof-price">R$ 65</div></div></div></div>
+          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p2">✂️</div><div class="prof-info"><div class="prof-name">Rafael Melo</div><div class="prof-role">Cabeleireiro</div><div class="prof-meta"><div class="prof-rating">⭐ 4.8</div><div class="prof-price">R$ 90</div></div></div></div>
+          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p3">🧖</div><div class="prof-info"><div class="prof-name">Julia Pires</div><div class="prof-role">Esteticista</div><div class="prof-meta"><div class="prof-rating">⭐ 5.0</div><div class="prof-price">R$ 120</div></div></div></div>
+        </div>
+        <div class="section-title">Próximos agendamentos</div>
+        <div class="next-card" onclick="goTo('agenda')"><div class="next-dot">💅</div><div class="next-info"><div class="next-name">Manicure gel</div><div class="next-detail">Camila Costa • Vila Madalena</div></div><div class="next-time">Amanhã<br>14:00</div></div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active" onclick="goTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div><div class="nav-dot"></div></div>
+        <div class="nav-item" onclick="goTo('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+        <div class="nav-item"><div class="nav-icon">🔔</div><div class="nav-label">Avisos</div></div>
+        <div class="nav-item"><div class="nav-icon">👤</div><div class="nav-label">Perfil</div></div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="screen" id="perfil">
+      <button class="back-btn" onclick="goTo('home')">←</button>
+      <div class="perfil-cover">💅<div class="perfil-avatar">👩</div></div>
+      <div class="perfil-scroll">
+        <div class="perfil-info"><div class="perfil-name">Camila Costa</div><div class="perfil-role">Nail Designer • Vila Madalena, SP</div><div class="perfil-stats"><div class="stat"><div class="stat-num">4.9</div><div class="stat-label">⭐ Nota</div></div><div class="stat"><div class="stat-num">847</div><div class="stat-label">Clientes</div></div><div class="stat"><div class="stat-num">3 anos</div><div class="stat-label">Experiência</div></div></div></div>
+        <div class="servicos"><div class="section-title" style="font-size:16px">Serviços</div>
+          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Manicure simples</div><div class="servico-tempo">⏱ 45 min</div></div><div class="servico-preco">R$ 45</div></div>
+          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Manicure gel</div><div class="servico-tempo">⏱ 90 min</div></div><div class="servico-preco">R$ 65</div></div>
+          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Pedicure completa</div><div class="servico-tempo">⏱ 60 min</div></div><div class="servico-preco">R$ 55</div></div>
+        </div>
+        <div class="avaliacoes"><div class="section-title" style="font-size:16px">Avaliações</div>
+          <div class="aval-item"><div class="aval-header"><div class="aval-nome">Bruna M.</div><div>⭐⭐⭐⭐⭐</div></div><div class="aval-text">"Amei o resultado! Camila é super caprichosa. Já marquei novamente!"</div></div>
+          <div class="aval-item"><div class="aval-header"><div class="aval-nome">Fernanda S.</div><div>⭐⭐⭐⭐⭐</div></div><div class="aval-text">"Melhor nail designer que já fui. Durou 3 semanas sem lascar!"</div></div>
+        </div>
+      </div>
+      <button class="btn-agendar" onclick="goTo('agenda')">Agendar horário →</button>
+      <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div></div>
+        <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div><div class="nav-dot"></div></div>
+        <div class="nav-item"><div class="nav-icon">🔔</div><div class="nav-label">Avisos</div></div>
+        <div class="nav-item"><div class="nav-icon">👤</div><div class="nav-label">Perfil</div></div>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="screen" id="agenda">
+      <div class="agenda-header">
+        <button style="background:var(--creme2);color:var(--escuro);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;margin-bottom:12px;font-size:16px;" onclick="goTo('perfil')">←</button>
+        <div class="agenda-title">Escolha o horário</div>
+        <div class="agenda-sub">Manicure gel • Camila Costa</div>
+      </div>
+      <div class="agenda-scroll">
+        <div class="cal-header"><div class="cal-month">Março 2026</div><div class="cal-nav"><button>‹</button><button>›</button></div></div>
+        <div class="cal-days-header"><div class="cal-day-name">D</div><div class="cal-day-name">S</div><div class="cal-day-name">T</div><div class="cal-day-name">Q</div><div class="cal-day-name">Q</div><div class="cal-day-name">S</div><div class="cal-day-name">S</div></div>
+        <div class="cal-days" id="calDays2"></div>
+        <div class="section-title" style="font-size:15px">Horários disponíveis</div>
+        <div class="horarios-grid">
+          <div class="horario-chip ocupado">09:00</div><div class="horario-chip" onclick="selH(this)">10:00</div><div class="horario-chip" onclick="selH(this)">11:00</div>
+          <div class="horario-chip ocupado">13:00</div><div class="horario-chip selected" onclick="selH(this)">14:00</div><div class="horario-chip" onclick="selH(this)">15:30</div>
+          <div class="horario-chip" onclick="selH(this)">16:00</div><div class="horario-chip ocupado">17:00</div><div class="horario-chip" onclick="selH(this)">18:30</div>
+        </div>
+        <div class="section-title" style="font-size:15px">Resumo</div>
+        <div class="resumo-card">
+          <div class="resumo-row"><div class="label">Serviço</div><div class="value">Manicure gel</div></div>
+          <div class="resumo-row"><div class="label">Profissional</div><div class="value">Camila Costa</div></div>
+          <div class="resumo-row"><div class="label">Data</div><div class="value">22 mar 2026</div></div>
+          <div class="resumo-row"><div class="label">Horário</div><div class="value">14:00</div></div>
+          <div class="resumo-row"><div class="label">Total</div><div class="value gold">R$ 65,00</div></div>
+        </div>
+        <button class="btn-confirmar" onclick="goTo('confirmacao')">Confirmar e pagar →</button>
+      </div>
+    </div>
+
+    <!-- CONFIRMAÇÃO -->
+    <div class="screen" id="confirmacao">
+      <div class="confirm-bg"></div>
+      <div class="confirm-icon">✅</div>
+      <div class="confirm-title">Tudo certo!</div>
+      <div class="confirm-sub">Agendamento confirmado.<br>Até lá, cuide-se! 💛</div>
+      <div class="confirm-card">
+        <div class="confirm-row"><div class="confirm-row-icon">💅</div><div><div class="confirm-row-label">Serviço</div><div class="confirm-row-value">Manicure gel</div></div></div>
+        <div class="confirm-row"><div class="confirm-row-icon">👩</div><div><div class="confirm-row-label">Profissional</div><div class="confirm-row-value">Camila Costa</div></div></div>
+        <div class="confirm-row"><div class="confirm-row-icon">📅</div><div><div class="confirm-row-label">Data e hora</div><div class="confirm-row-value">22 mar · 14:00</div></div></div>
+        <div class="confirm-row"><div class="confirm-row-icon">💳</div><div><div class="confirm-row-label">Pagamento</div><div class="confirm-row-value">R$ 65,00 · Pix</div></div></div>
+      </div>
+      <button class="btn-home" onclick="goTo('home')">Voltar para o início</button>
+    </div>
+
+    <!-- ── MODAIS JURÍDICOS ── -->
+
+    <!-- TERMOS DE USO -->
+    <div class="modal-overlay" id="modal-termos">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+          <div><div class="modal-title">Termos de Uso</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Última atualização: março/2026</div></div>
+          <button class="modal-close" onclick="fecharModal('termos')">✕</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="doc-section">
+            <h3>1. Das Partes e do Objeto</h3>
+            <p>Os presentes Termos de Uso regulam a relação entre a <strong>Zuli Tecnologia Ltda.</strong> (doravante "Zuli"), pessoa jurídica de direito privado, inscrita no CNPJ sob o nº [00.000.000/0001-00], com sede em [Cidade/UF], e o <strong>Usuário</strong>, pessoa física maior de 18 anos <span class="doc-lei">Lei 10.406/02 — CC Art. 3º</span>, que acessa a plataforma digital Zuli por meio do aplicativo móvel ou website.</p>
+            <p>A Zuli é uma plataforma de intermediação tecnológica que conecta usuários a profissionais de beleza autônomos. <strong>A Zuli não presta serviços de beleza diretamente</strong>, atuando exclusivamente como intermediária. <span class="doc-lei">CDC Art. 14</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>2. Aceitação e Vigência</h3>
+            <p>O uso da plataforma implica aceitação integral e irrestrita destes Termos. O Usuário deve ler atentamente antes de se cadastrar. A aceitação é registrada eletronicamente com data, hora e endereço IP, tendo plena validade jurídica. <span class="doc-lei">MP 2.200-2/01</span></p>
+            <p>Estes Termos vigoram por prazo indeterminado e podem ser atualizados a qualquer momento mediante notificação ao Usuário com antecedência mínima de 10 (dez) dias. O uso continuado da plataforma após as alterações constitui aceitação tácita das novas condições.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>3. Cadastro e Responsabilidades do Usuário</h3>
+            <p>Para utilizar a Zuli, o Usuário deverá:</p>
+            <ul>
+              <li>Ter capacidade civil plena (mínimo 18 anos) ou assistência legal <span class="doc-lei">CC Art. 4º</span></li>
+              <li>Fornecer informações verdadeiras, completas e atualizadas</li>
+              <li>Manter sigilo de suas credenciais de acesso</li>
+              <li>Utilizar a plataforma exclusivamente para fins lícitos</li>
+              <li>Não ceder, vender ou transferir sua conta a terceiros</li>
+            </ul>
+            <p>O Usuário é integralmente responsável por todas as atividades realizadas em sua conta. A Zuli não se responsabiliza por prejuízos decorrentes do uso indevido ou não autorizado das credenciais do Usuário.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>4. Funcionamento da Plataforma e Pagamentos</h3>
+            <p>Os serviços são prestados diretamente pelos profissionais cadastrados, que atuam como autônomos independentes. A Zuli cobra uma <strong>taxa de intermediação de 12% (doze por cento)</strong> sobre o valor de cada serviço realizado, retida automaticamente no processamento do pagamento.</p>
+            <p>Os pagamentos são processados por gateway certificado (PCI-DSS). O usuário pode pagar via cartão de crédito, débito ou Pix. A confirmação do agendamento ocorre apenas após a confirmação do pagamento. <span class="doc-lei">Lei 12.865/13</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>5. Política de Cancelamento e Reembolso</h3>
+            <ul>
+              <li><strong>Cancelamento com +2h de antecedência:</strong> reembolso integral em até 5 dias úteis</li>
+              <li><strong>Cancelamento com menos de 2h:</strong> reembolso de 50% do valor pago</li>
+              <li><strong>No-show do Usuário:</strong> sem reembolso</li>
+              <li><strong>No-show ou cancelamento pelo profissional:</strong> reembolso integral + crédito de R$ 15,00 na plataforma</li>
+              <li><strong>Serviço insatisfatório comprovado:</strong> análise em até 48h com possibilidade de reembolso parcial ou total</li>
+            </ul>
+            <p>Os reembolsos são processados pelo mesmo meio de pagamento utilizado na compra, conforme previsto no Código de Defesa do Consumidor. <span class="doc-lei">CDC Art. 49</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>6. Responsabilidades e Limitações da Zuli</h3>
+            <p>A Zuli envidarã todos os esforços para manter a plataforma disponível, mas não garante disponibilidade ininterrupta. A Zuli <strong>não se responsabiliza por</strong>:</p>
+            <ul>
+              <li>Qualidade dos serviços prestados pelos profissionais</li>
+              <li>Danos causados por profissionais durante o atendimento</li>
+              <li>Divergências entre o serviço contratado e o efetivamente prestado</li>
+              <li>Reações alérgicas ou adversas a produtos utilizados pelo profissional</li>
+            </ul>
+            <p>A responsabilidade da Zuli limita-se ao valor da transação objeto da reclamação. <span class="doc-lei">CDC Art. 14 §3º</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>7. Proteção de Menores — ECA Digital</h3>
+            <p>Em conformidade com a <strong>Lei nº 15.211/2025 (ECA Digital)</strong>, que entrou em vigor em 17 de março de 2026, a Zuli adota as seguintes medidas de proteção:</p>
+            <ul>
+              <li>Vedação de cadastro para menores de 18 anos sem consentimento do responsável legal</li>
+              <li>Ausência de perfil comportamental para fins publicitários</li>
+              <li>Configurações de privacidade máxima ativadas por padrão (privacy by design)</li>
+              <li>Verificação de idade no cadastro por meio de documento válido</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>8. Propriedade Intelectual</h3>
+            <p>Todo o conteúdo da plataforma Zuli — marca, logotipo, layout, código-fonte, design e textos — é protegido por direitos autorais e de propriedade intelectual, sendo vedada sua reprodução sem autorização expressa. <span class="doc-lei">Lei 9.610/98</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>9. Foro e Legislação Aplicável</h3>
+            <p>Estes Termos são regidos pela legislação brasileira. As partes elegem o foro da comarca de <strong>[Cidade/UF]</strong> para dirimir quaisquer controvérsias, com renúncia expressa a qualquer outro, por mais privilegiado que seja. <span class="doc-lei">CPC Art. 63</span></p>
+            <p>Aplicam-se subsidiariamente: o Código Civil (Lei 10.406/02), o Código de Defesa do Consumidor (Lei 8.078/90), o Marco Civil da Internet (Lei 12.965/14) e a LGPD (Lei 13.709/18).</p>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="accept-row" onclick="toggleCheck('check-termos','btn-termos')">
+            <div class="accept-check" id="check-termos">✓</div>
+            <div class="accept-text">Li e aceito integralmente os <strong>Termos de Uso</strong> da Zuli, incluindo a política de cancelamento e as responsabilidades descritas.</div>
+          </div>
+          <button class="btn-aceitar" id="btn-termos" onclick="fecharModal('termos');goTo('home')">Aceitar e continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POLÍTICA DE PRIVACIDADE -->
+    <div class="modal-overlay" id="modal-privacidade">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+          <div><div class="modal-title">Política de Privacidade</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Conforme LGPD (Lei 13.709/18)</div></div>
+          <button class="modal-close" onclick="fecharModal('privacidade')">✕</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="doc-section">
+            <h3>1. Controlador dos Dados</h3>
+            <p>O controlador dos dados pessoais tratados nesta plataforma é a <strong>Zuli Tecnologia Ltda.</strong>, CNPJ [00.000.000/0001-00]. O Encarregado pelo Tratamento de Dados (DPO) pode ser contatado pelo e-mail: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b4c4c6ddc2d5d7ddd0d5d0d1f4cec1d8dd9ad7dbd99ad6c6">[email&#160;protected]</a></strong>. <span class="doc-lei">LGPD Art. 41</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>2. Dados Coletados e Finalidade</h3>
+            <p>A Zuli coleta exclusivamente os dados necessários à prestação do serviço (princípio da minimização): <span class="doc-lei">LGPD Art. 6º, III</span></p>
+            <ul>
+              <li><strong>Dados de cadastro:</strong> nome completo, e-mail, telefone, data de nascimento — para identificação e comunicação</li>
+              <li><strong>Dados de pagamento:</strong> processados pelo gateway (a Zuli não armazena dados de cartão)</li>
+              <li><strong>Histórico de agendamentos:</strong> para gestão de serviços e emissão de comprovantes</li>
+              <li><strong>Dados de localização (opcional):</strong> para sugestão de profissionais próximos, mediante consentimento</li>
+              <li><strong>Dados de uso:</strong> logs de acesso, conforme obrigação legal <span class="doc-lei">Marco Civil Art. 15</span></li>
+            </ul>
+            <p><strong>A Zuli não coleta, processa nem vende dados sensíveis</strong> (origem racial, opinião política, saúde, biometria). <span class="doc-lei">LGPD Art. 11</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>3. Base Legal para Tratamento</h3>
+            <p>O tratamento de dados pela Zuli fundamenta-se nas seguintes bases legais: <span class="doc-lei">LGPD Art. 7º</span></p>
+            <ul>
+              <li><strong>Consentimento</strong> (Art. 7º, I): para comunicações de marketing e uso de localização</li>
+              <li><strong>Execução de contrato</strong> (Art. 7º, V): para processamento de agendamentos e pagamentos</li>
+              <li><strong>Obrigação legal</strong> (Art. 7º, II): para guarda de logs de acesso por 6 meses</li>
+              <li><strong>Legítimo interesse</strong> (Art. 7º, IX): para prevenção a fraudes e segurança da plataforma</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>4. Compartilhamento de Dados</h3>
+            <p>Os dados do Usuário poderão ser compartilhados com:</p>
+            <ul>
+              <li><strong>Profissional contratado:</strong> nome e telefone para confirmação do agendamento</li>
+              <li><strong>Gateway de pagamento:</strong> dados necessários para processamento da transação</li>
+              <li><strong>Autoridades públicas:</strong> quando exigido por lei ou ordem judicial</li>
+            </ul>
+            <p><strong>A Zuli não vende dados pessoais a terceiros</strong> sob qualquer circunstância. <span class="doc-lei">LGPD Art. 6º, I</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>5. Retenção e Exclusão de Dados</h3>
+            <p>Os dados são mantidos pelos seguintes prazos:</p>
+            <ul>
+              <li><strong>Dados de cadastro ativos:</strong> enquanto a conta estiver ativa</li>
+              <li><strong>Histórico de transações:</strong> 5 anos (obrigação fiscal) <span class="doc-lei">CTN Art. 173</span></li>
+              <li><strong>Logs de acesso:</strong> 6 meses <span class="doc-lei">Marco Civil Art. 15</span></li>
+              <li><strong>Contas inativas:</strong> excluídas após 24 meses sem uso, mediante aviso prévio</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>6. Direitos do Titular</h3>
+            <p>O Usuário tem direito a, a qualquer momento, mediante solicitação para <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2454564d5245474d40454041645e51484d0a474b490a4656">[email&#160;protected]</a></strong> (prazo de resposta: 15 dias): <span class="doc-lei">LGPD Art. 18</span></p>
+            <ul>
+              <li>Confirmar a existência de tratamento de seus dados</li>
+              <li>Acessar uma cópia dos dados que a Zuli possui</li>
+              <li>Corrigir dados incompletos ou desatualizados</li>
+              <li>Solicitar a anonimização, bloqueio ou eliminação dos dados</li>
+              <li>Revogar o consentimento a qualquer momento</li>
+              <li>Portabilidade dos dados para outro fornecedor</li>
+              <li>Apresentar reclamação à ANPD</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>7. Segurança da Informação</h3>
+            <p>A Zuli adota as seguintes medidas técnicas e organizacionais: <span class="doc-lei">LGPD Art. 46</span></p>
+            <ul>
+              <li>Criptografia TLS 1.3 em todas as comunicações (HTTPS)</li>
+              <li>Criptografia dos dados em repouso no banco de dados</li>
+              <li>Controle de acesso por perfil (RBAC)</li>
+              <li>Logs de auditoria de acesso a dados</li>
+              <li>Em caso de incidente, notificação à ANPD em até 72h <span class="doc-lei">LGPD Art. 48</span></li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>8. Cookies e Tecnologias de Rastreamento</h3>
+            <p>A Zuli utiliza cookies estritamente necessários ao funcionamento da plataforma e, mediante consentimento, cookies analíticos (ex: Firebase Analytics). O Usuário pode gerenciar suas preferências nas configurações do dispositivo.</p>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="accept-row" onclick="toggleCheck('check-priv','btn-priv')">
+            <div class="accept-check" id="check-priv">✓</div>
+            <div class="accept-text">Li e aceito a <strong>Política de Privacidade</strong> da Zuli e consinto com o tratamento dos meus dados pessoais conforme descrito.</div>
+          </div>
+          <button class="btn-aceitar" id="btn-priv" onclick="fecharModal('privacidade')">Aceitar e continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRATO PROFISSIONAL -->
+    <div class="modal-overlay" id="modal-contrato">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+          <div><div class="modal-title">Contrato com Profissional</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Prestação de Serviços de Intermediação</div></div>
+          <button class="modal-close" onclick="fecharModal('contrato')">✕</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="doc-section">
+            <h3>Preâmbulo</h3>
+            <p>Este instrumento particular de <strong>Contrato de Prestação de Serviços de Intermediação Digital</strong> é celebrado entre:</p>
+            <p><strong>CONTRATANTE:</strong> Zuli Tecnologia Ltda., CNPJ [00.000.000/0001-00], doravante denominada simplesmente "Zuli".</p>
+            <p><strong>CONTRATADO(A):</strong> Profissional de beleza autônomo(a) devidamente cadastrado(a) na plataforma, com os dados fornecidos no ato do cadastro, doravante denominado(a) "Profissional".</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 1ª — Do Objeto</h3>
+            <p>A Zuli disponibiliza ao Profissional acesso à sua plataforma digital de intermediação, por meio da qual o Profissional poderá oferecer seus serviços de beleza a usuários finais (clientes). A Zuli atua exclusivamente como intermediária tecnológica, não existindo qualquer vínculo empregatício entre as partes. <span class="doc-lei">CLT Art. 3º</span></p>
+            <p>O presente contrato não gera exclusividade. O Profissional permanece livre para atender clientes por outros canais e plataformas.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 2ª — Das Obrigações da Zuli</h3>
+            <p>Compete à Zuli:</p>
+            <ul>
+              <li>Disponibilizar a plataforma em condições técnicas adequadas de funcionamento</li>
+              <li>Processar os pagamentos dos clientes com segurança</li>
+              <li>Repassar ao Profissional o valor líquido acordado no prazo estipulado</li>
+              <li>Fornecer suporte técnico em horário comercial</li>
+              <li>Notificar o Profissional sobre novos agendamentos em tempo real</li>
+              <li>Manter sigilo sobre os dados do Profissional</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 3ª — Das Obrigações do Profissional</h3>
+            <p>Compete ao Profissional:</p>
+            <ul>
+              <li>Prestar os serviços com qualidade, pontualidade e profissionalismo</li>
+              <li>Manter seus dados cadastrais atualizados (nome, serviços, preços, disponibilidade)</li>
+              <li>Comunicar ausências ou cancelamentos com mínimo de 24h de antecedência</li>
+              <li>Zelar pela higiene e segurança nos atendimentos, em conformidade com as normas da ANVISA</li>
+              <li>Emitir nota fiscal ou recibo pelos serviços prestados, conforme a legislação fiscal vigente</li>
+              <li>Responder pessoal e integralmente por danos causados aos clientes durante os atendimentos</li>
+              <li>Não abordar clientes captados pela plataforma para atendimento fora dela pelo período de vigência do contrato e por 6 meses após rescisão</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 4ª — Da Remuneração, Repasses e Processamento de Pagamentos</h3>
+
+            <p><strong>4.1 — Taxa de intermediação</strong><br>
+            O Profissional receberá <strong>88% (oitenta e oito por cento) do valor bruto</strong> cobrado ao cliente por cada serviço realizado via plataforma. Os 12% (doze por cento) restantes constituem a taxa de intermediação da Zuli, já incluídas nesse percentual as taxas operacionais da plataforma.</p>
+
+            <p><strong>4.2 — Processador de pagamentos</strong><br>
+            Os pagamentos são processados exclusivamente pelo <strong>Mercado Pago</strong> (Mercado Livre de Atividades de Internet S.A., CNPJ 10.573.521/0001-91), por meio da funcionalidade <em>Marketplace com Split de Pagamento</em>. O Profissional concorda com os <a href="https://www.mercadopago.com.br/ajuda/termos-e-politicas_194" target="_blank" style="color:var(--ouro)">Termos de Uso do Mercado Pago</a> como condição para receber repasses pela plataforma.</p>
+
+            <p><strong>4.3 — Vinculação de conta</strong><br>
+            Para receber os repasses, o Profissional deverá vincular sua conta pessoal do Mercado Pago à plataforma Zuli mediante autorização OAuth. A Zuli não armazena credenciais bancárias — toda autenticação ocorre diretamente entre o Profissional e o Mercado Pago.</p>
+
+            <p><strong>4.4 — Taxas do processador</strong><br>
+            A Zuli absorve integralmente as taxas cobradas pelo Mercado Pago, conforme tabela vigente:</p>
+            <ul>
+              <li><strong>Pix:</strong> 0,99% — absorvido pela Zuli · repasse ao Profissional: instantâneo</li>
+              <li><strong>Cartão de crédito 1x:</strong> 3,49% — absorvido pela Zuli · repasse: D+2 úteis</li>
+              <li><strong>Cartão de crédito 2–6x:</strong> 3,99% — absorvido pela Zuli · repasse: D+2 úteis</li>
+              <li><strong>Cartão de débito:</strong> 1,99% — absorvido pela Zuli · repasse: D+1 útil</li>
+            </ul>
+            <p>O Profissional sempre recebe <strong>88% do valor bruto</strong> cobrado ao cliente, independentemente da forma de pagamento utilizada. As taxas do Mercado Pago nunca serão descontadas do valor do Profissional.</p>
+
+            <p><strong>4.5 — Simulação de repasse (valores de referência)</strong></p>
+            <ul>
+              <li>Serviço de R$ 65,00 via Pix → Profissional recebe <strong>R$ 57,20</strong> · Zuli retém R$ 7,80</li>
+              <li>Serviço de R$ 90,00 via cartão 1x → Profissional recebe <strong>R$ 79,20</strong> · Zuli retém R$ 10,80</li>
+              <li>Serviço de R$ 120,00 via Pix → Profissional recebe <strong>R$ 105,60</strong> · Zuli retém R$ 14,40</li>
+            </ul>
+
+            <p><strong>4.6 — Prazo de repasse</strong><br>
+            Os repasses são realizados automaticamente pelo Mercado Pago na conta vinculada do Profissional nos prazos indicados no item 4.4. Em caso de falha técnica no repasse, a Zuli se compromete a resolver em até <strong>2 (dois) dias úteis</strong> mediante acionamento pelo canal de suporte.</p>
+
+            <p><strong>4.7 — Cancelamentos e estornos</strong><br>
+            Em caso de cancelamento com direito a reembolso (conforme Cláusula 5ª dos Termos de Uso), o valor já repassado ao Profissional será descontado do próximo repasse. Se não houver repasse pendente suficiente, o Profissional deverá devolver o valor em até 5 (cinco) dias úteis.</p>
+
+            <p><strong>4.8 — Revisão da taxa</strong><br>
+            A taxa de intermediação de 12% poderá ser revisada mediante comunicação com antecedência mínima de <strong>30 (trinta) dias</strong>, facultando ao Profissional a rescisão sem penalidades caso não concorde com os novos termos.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 5ª — Da Avaliação e Qualidade</h3>
+            <p>Os clientes poderão avaliar os serviços após cada atendimento em escala de 1 a 5 estrelas. O Profissional com avaliação média inferior a <strong>3,0 (três) estrelas</strong> por período consecutivo de 30 dias poderá ter seu cadastro suspenso preventivamente, com direito à defesa em até 5 dias úteis.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 6ª — Da Rescisão</h3>
+            <p>Qualquer das partes poderá rescindir o presente contrato a qualquer momento, mediante comunicação por escrito com antecedência mínima de <strong>15 (quinze) dias</strong>, sem qualquer ônus.</p>
+            <p>A Zuli poderá rescindir imediatamente e sem aviso prévio em caso de: (i) comprovada má conduta com clientes; (ii) prestação de serviços falsos ou fraudulentos; (iii) violação grave das obrigações deste contrato.</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 7ª — Da Proteção de Dados (LGPD)</h3>
+            <p>Os dados pessoais do Profissional serão tratados pela Zuli exclusivamente para fins de cadastro, operação da plataforma e repasse de pagamentos. O Profissional tem os mesmos direitos garantidos ao Usuário na Política de Privacidade da Zuli. <span class="doc-lei">LGPD Art. 18</span></p>
+          </div>
+
+          <div class="doc-section">
+            <h3>Cláusula 8ª — Do Foro</h3>
+            <p>Fica eleito o foro da comarca de <strong>[Cidade/UF]</strong> para dirimir quaisquer litígios decorrentes deste contrato, com renúncia a qualquer outro foro, por mais privilegiado que seja. Aplicam-se as disposições do Código Civil (Lei 10.406/02) e demais normas vigentes.</p>
+            <p>As partes concordam em tentar resolver eventuais conflitos primeiramente por mediação extrajudicial, antes de recorrer ao Poder Judiciário. <span class="doc-lei">Lei 13.140/15</span></p>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="accept-row" onclick="toggleCheck('check-cont','btn-cont')">
+            <div class="accept-check" id="check-cont">✓</div>
+            <div class="accept-text">Li, compreendi e aceito todas as cláusulas deste <strong>Contrato de Intermediação</strong> com a Zuli Tecnologia Ltda.</div>
+          </div>
+          <button class="btn-aceitar" id="btn-cont" onclick="fecharModal('contrato')">Assinar contrato</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+
+  <div class="nav-btns">
+    <button onclick="goTo('splash')" id="btn-splash" class="active">Splash</button>
+    <button onclick="goTo('home')" id="btn-home">Home</button>
+    <button onclick="goTo('perfil')" id="btn-perfil">Perfil</button>
+    <button onclick="goTo('agenda')" id="btn-agenda">Agendar</button>
+    <button onclick="goTo('confirmacao')" id="btn-confirmacao">✅ Confirmado</button>
+  </div>
+  <div class="scene-label">Navegue pelas telas ou abra os documentos jurídicos</div>
+</div>
+
+<!-- ═══════════════ PAINEL LATERAL ═══════════════ -->
+<div class="docs-panel">
+  <div class="scene-label" style="text-align:center">Documentos Jurídicos Integrados</div>
+
+  <div class="doc-card">
+    <div class="doc-card-tag">📋 Documento 1</div>
+    <h2>Termos de Uso</h2>
+    <p>Regula a relação entre a Zuli e o cliente. Define direitos, responsabilidades, cancelamentos, reembolsos e foro.</p>
+    <div class="leis">
+      <div class="lei-chip">CDC Lei 8.078/90</div>
+      <div class="lei-chip">CC Lei 10.406/02</div>
+      <div class="lei-chip">Marco Civil 12.965/14</div>
+      <div class="lei-chip">ECA Digital 15.211/25</div>
+    </div>
+    <button class="btn-ver" onclick="goTo('splash');abrirModal('termos')">Ver documento completo →</button>
+  </div>
+
+  <div class="doc-card">
+    <div class="doc-card-tag">🔐 Documento 2</div>
+    <h2>Política de Privacidade</h2>
+    <p>Define quais dados são coletados, por que, por quanto tempo, com quem são compartilhados e os direitos do titular.</p>
+    <div class="leis">
+      <div class="lei-chip">LGPD Lei 13.709/18</div>
+      <div class="lei-chip">EC 115/2022</div>
+      <div class="lei-chip">Marco Civil Art. 15</div>
+      <div class="lei-chip">CTN Art. 173</div>
+    </div>
+    <button class="btn-ver" onclick="goTo('splash');abrirModal('privacidade')">Ver documento completo →</button>
+  </div>
+
+  <div class="doc-card">
+    <div class="doc-card-tag">🤝 Documento 3</div>
+    <h2>Contrato com Profissional</h2>
+    <p>Rege a relação entre a Zuli e os profissionais de beleza. Define comissão, repasses, obrigações e rescisão.</p>
+    <div class="leis">
+      <div class="lei-chip">CC Lei 10.406/02</div>
+      <div class="lei-chip">CLT Art. 3º</div>
+      <div class="lei-chip">LGPD Art. 18</div>
+      <div class="lei-chip">Lei Mediação 13.140/15</div>
+    </div>
+    <button class="btn-ver" onclick="goTo('splash');abrirModal('contrato')">Ver documento completo →</button>
+  </div>
+
+  <div class="doc-card" style="background:rgba(61,153,112,0.08);border-color:rgba(61,153,112,0.25);">
+    <div class="doc-card-tag" style="background:rgba(61,153,112,0.2);color:#7DDFAA;">⚠️ Aviso Importante</div>
+    <h2 style="font-size:16px;color:rgba(255,255,255,.8)">Estes documentos são um ponto de partida</h2>
+    <p>Os textos foram elaborados com base na legislação brasileira vigente em março de 2026. <strong style="color:rgba(255,255,255,.7)">Recomenda-se fortemente a revisão por um advogado especialista</strong> antes de colocar o app em produção — especialmente para preencher os campos em colchetes [CNPJ], [Cidade/UF] e ajustar cláusulas ao seu modelo de negócio específico. Custo estimado de revisão: R$ 500–800.</p>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Calendário
+const calEl = document.getElementById('calDays2');
+const days = [
+  {d:1},{d:2},{d:3},{d:4},{d:5},{d:6},{d:7},
+  {d:8},{d:9},{d:10},{d:11},{d:12},{d:13},{d:14},
+  {d:15},{d:16},{d:17},{d:18},{d:19},{d:20},{d:21,today:true},
+  {d:22,sel:true},{d:23},{d:24},{d:25},{d:26},{d:27},{d:28},
+  {d:29},{d:30},{d:31},{d:1,other:true},{d:2,other:true},{d:3,other:true},{d:4,other:true}
+];
+days.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'cal-day'+(d.other?' other':'')+( d.today?' today':'')+( d.sel?' selected':'');
+  el.textContent = d.d;
+  if(!d.other) el.onclick = ()=>{ document.querySelectorAll('#calDays2 .cal-day.selected').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
+  calEl.appendChild(el);
+});
+
+// Navegação
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const light=['splash','confirmacao'];
+  document.getElementById('statusBar').className='status-bar'+(light.includes(id)?' light':'');
+  document.querySelectorAll('.nav-btns button').forEach(b=>b.classList.remove('active'));
+  const b=document.getElementById('btn-'+id); if(b)b.classList.add('active');
+}
+
+// Modais
+function abrirModal(id){
+  document.getElementById('modal-'+id).classList.add('open');
+}
+function fecharModal(id){
+  document.getElementById('modal-'+id).classList.remove('open');
+}
+
+// Checkbox aceite
+function toggleCheck(checkId, btnId){
+  const check = document.getElementById(checkId);
+  const btn = document.getElementById(btnId);
+  check.classList.toggle('checked');
+  btn.classList.toggle('ativo', check.classList.contains('checked'));
+}
+
+// Fec                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
