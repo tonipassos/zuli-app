@@ -3,1194 +3,1358 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zuli — App + Documentos Jurídicos</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Zuli — Beleza na palma da mão</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
-// ══════════════════════════════════════════════
-// 🔧 SUAS CHAVES — SUBSTITUA OS VALORES ABAIXO
-// ══════════════════════════════════════════════
-const SUPABASE_URL  = 'https://tdnbjrsjvvhhvcugvxwg.supabase.co'
-const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbmJqcnNqdnZoaHZjdWd2eHdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODk5ODIsImV4cCI6MjA4OTc2NTk4Mn0.SK1EHfbzhd9ouiJtEa8qoqhyACHmlqec-3IizjpyCFI'
-const MP_PUBLIC_KEY = 'APP_USR-761bdb9b-96fe-4872-83e6-71df32db6d94'
-const MP_TOKEN      = 'APP_USR-1569466397106827-032216-916ad93d4198e7b64594030ab0701056-1318215042'
-// ══════════════════════════════════════════════
-
-const db  = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-let   mpInstance
-
-try { mpInstance = new MercadoPago(MP_PUBLIC_KEY, { locale:'pt-BR' }) } catch(e) {}
-
-window.addEventListener('DOMContentLoaded', () => {
-  db.auth.onAuthStateChange((event, session) => {
-    if (session) { goTo('home') } else { goTo('login') }
-  })
-})
+// ═══════════════════════════════════════════
+// 🔧 SUAS CHAVES — SUBSTITUA AQUI
+// ═══════════════════════════════════════════
+const SUPABASE_URL = 'COLE_SUA_URL_AQUI'
+const SUPABASE_KEY = 'COLE_SUA_ANON_KEY_AQUI'
+const MP_TOKEN     = 'COLE_SEU_MP_TOKEN_AQUI'
+// ═══════════════════════════════════════════
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+let usuarioAtual = null
+let perfilAtual  = 'cliente' // 'cliente' | 'profissional' | 'admin'
 </script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ouro:#C9A96E;--ouro2:#E8C98A;--escuro:#1C1612;--escuro2:#2E2720;
+  --creme:#FAF7F2;--creme2:#F2EDE4;--cinza:#9A8E85;--borda:#EAE4DC;
+  --verde:#27AE78;--verde-cl:#E8F8F1;--vermelho:#E74C3C;--verm-cl:#FDECEA;
+  --azul:#2C7BE5;--azul-cl:#EBF3FF;--roxo:#8B5CF6;--roxo-cl:#F3EFFE;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--creme);color:var(--escuro);min-height:100vh}
 
-:root {
-  --creme:#FAF7F2; --creme2:#F2EDE4; --ouro:#C9A96E; --ouro2:#E8C98A;
-  --escuro:#1C1612; --escuro2:#2E2720; --rosa:#E8B4B8; --rosa2:#F5D9DB;
-  --cinza:#9A8E85; --verde:#3D9970; --verde-cl:#E8F5EE; --borda:#EAE4DC;
-  --vermelho:#C0392B;
+/* ── UTILITÁRIOS ── */
+.hidden{display:none!important}
+.flex{display:flex}.flex-col{flex-direction:column}.gap-4{gap:16px}.gap-2{gap:8px}
+.items-center{align-items:center}.justify-between{justify-content:space-between}
+.w-full{width:100%}.text-center{text-align:center}
+.font-bold{font-weight:700}.font-semibold{font-weight:600}
+.text-sm{font-size:13px}.text-xs{font-size:11px}.text-lg{font-size:18px}.text-xl{font-size:22px}
+.text-cinza{color:var(--cinza)}.text-ouro{color:var(--ouro)}.text-verde{color:var(--verde)}
+.text-vermelho{color:var(--vermelho)}
+.rounded{border-radius:12px}.rounded-lg{border-radius:16px}.rounded-xl{border-radius:20px}.rounded-full{border-radius:100px}
+.bg-white{background:white}.bg-creme{background:var(--creme)}.bg-escuro{background:var(--escuro)}
+.p-4{padding:16px}.p-6{padding:24px}.px-4{padding:0 16px}.py-2{padding:8px 0}
+.mb-2{margin-bottom:8px}.mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mt-4{margin-top:16px}
+.shadow{box-shadow:0 4px 20px rgba(0,0,0,.08)}.shadow-lg{box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.border{border:1.5px solid var(--borda)}
+.cursor{cursor:pointer}
+.transition{transition:all .2s}
+
+/* ── VIEWS ── */
+.view{display:none;min-height:100vh;flex-direction:column}
+.view.active{display:flex}
+
+/* ── NAVBAR ── */
+.navbar{
+  background:var(--escuro);padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 20px rgba(0,0,0,.3);
+}
+.navbar-logo{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--creme);cursor:pointer}
+.navbar-logo span{color:var(--ouro)}
+.navbar-links{display:flex;gap:8px;align-items:center}
+.nav-btn{
+  background:transparent;border:none;color:rgba(255,255,255,.6);
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;font-size:14px;
+  padding:8px 16px;border-radius:100px;cursor:pointer;transition:all .2s;
+}
+.nav-btn:hover{color:white;background:rgba(255,255,255,.1)}
+.nav-btn.active{color:var(--ouro);font-weight:700}
+.nav-btn-primary{
+  background:linear-gradient(135deg,var(--ouro),var(--ouro2));color:var(--escuro);
+  font-weight:700;border:none;padding:10px 20px;border-radius:100px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;transition:transform .2s;
+}
+.nav-btn-primary:hover{transform:scale(1.03)}
+.nav-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--ouro),var(--rosa,#E8B4B8));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;border:2px solid rgba(255,255,255,.2);
 }
 
-body {
-  background:#1C1612;
-  display:flex; align-items:flex-start; justify-content:center;
-  min-height:100vh;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  padding:32px 16px;
-  gap:48px;
-  flex-wrap:wrap;
+/* ── SIDEBAR ── */
+.layout{display:flex;flex:1}
+.sidebar{
+  width:260px;background:white;border-right:1px solid var(--borda);
+  padding:24px 16px;display:flex;flex-direction:column;gap:4px;
+  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;
 }
-
-/* ── PHONE ── */
-.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
-
-.scene-label {
-  font-size:11px; font-weight:600; letter-spacing:3px;
-  text-transform:uppercase; color:rgba(255,255,255,0.25);
+.sidebar-section{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza);padding:16px 12px 8px}
+.sidebar-item{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;
+  cursor:pointer;transition:all .2s;font-size:14px;font-weight:500;color:var(--cinza);border:none;background:none;width:100%;
 }
+.sidebar-item:hover{background:var(--creme2);color:var(--escuro)}
+.sidebar-item.active{background:var(--escuro);color:var(--ouro);font-weight:700}
+.sidebar-item .icon{font-size:18px;width:24px;text-align:center}
+.sidebar-badge{margin-left:auto;background:var(--vermelho);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
+.main-content{flex:1;padding:32px;overflow-y:auto;max-height:calc(100vh - 64px)}
 
-.phone {
-  width:375px; height:812px;
-  background:var(--creme); border-radius:52px; overflow:hidden;
-  position:relative;
-  box-shadow:0 0 0 10px #2a2420, 0 0 0 12px #3a3028,
-             0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(201,169,110,0.1);
+/* ── CARDS ── */
+.card{background:white;border-radius:20px;padding:24px;border:1px solid var(--borda);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.08)}
+.stat-card{background:white;border-radius:20px;padding:24px;border:1px solid var(--borda)}
+.stat-card .stat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.stat-card .stat-val{font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--escuro);margin-bottom:4px}
+.stat-card .stat-label{font-size:13px;color:var(--cinza)}
+.stat-card .stat-change{font-size:12px;font-weight:600;margin-top:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+
+/* ── TABELA ── */
+.table-wrap{background:white;border-radius:20px;border:1px solid var(--borda);overflow:hidden}
+.table-header{padding:20px 24px;border-bottom:1px solid var(--borda);display:flex;justify-content:space-between;align-items:center}
+.table-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 20px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza);background:var(--creme);border-bottom:1px solid var(--borda)}
+td{padding:14px 20px;font-size:14px;border-bottom:1px solid var(--borda)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--creme)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-verde{background:var(--verde-cl);color:#1D6A3A}
+.badge-amarelo{background:#FEF9EC;color:#A05A00}
+.badge-vermelho{background:var(--verm-cl);color:var(--vermelho)}
+.badge-azul{background:var(--azul-cl);color:var(--azul)}
+.badge-roxo{background:var(--roxo-cl);color:var(--roxo)}
+.badge-cinza{background:var(--creme2);color:var(--cinza)}
+
+/* ── BOTÕES ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--escuro),var(--escuro2));color:var(--ouro)}
+.btn-primary:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.btn-gold{background:linear-gradient(135deg,var(--ouro),var(--ouro2));color:var(--escuro)}
+.btn-gold:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(201,169,110,.35)}
+.btn-outline{background:transparent;border:1.5px solid var(--borda);color:var(--escuro)}
+.btn-outline:hover{border-color:var(--ouro);color:var(--ouro)}
+.btn-danger{background:var(--verm-cl);color:var(--vermelho);border:1.5px solid #FAAAA3}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
+.btn-xs{padding:5px 12px;font-size:12px;border-radius:8px}
+.btn-full{width:100%;padding:16px}
+
+/* ── INPUTS ── */
+.input-group{margin-bottom:16px}
+.input-label{font-size:13px;font-weight:600;color:var(--escuro);margin-bottom:6px;display:block}
+.input{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--borda);background:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--escuro);outline:none;transition:border-color .2s}
+.input:focus{border-color:var(--ouro)}
+.input-dark{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:white}
+.input-dark::placeholder{color:rgba(255,255,255,.4)}
+.input-dark:focus{border-color:var(--ouro)}
+select.input{cursor:pointer}
+
+/* ── ALERTAS ── */
+.alert{padding:14px 18px;border-radius:12px;font-size:13px;line-height:1.6;margin-bottom:16px;display:none}
+.alert.show{display:flex;gap:10px;align-items:flex-start}
+.alert-erro{background:var(--verm-cl);border:1px solid #FAAAA3;color:#922B21}
+.alert-ok{background:var(--verde-cl);border:1px solid #A9DFBF;color:#1D6A3A}
+.alert-info{background:var(--azul-cl);border:1px solid #B8D4F5;color:#1A4A8A}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:24px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:modalIn .3s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+.modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--creme2);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* ── AVATAR ── */
+.prof-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pa-rosa{background:linear-gradient(135deg,#F5D9DB,#E8B4B8)}
+.pa-verde{background:linear-gradient(135deg,#D9EAD9,#B4D4B8)}
+.pa-ouro{background:linear-gradient(135deg,#F5EAD9,#E8C9A0)}
+.pa-roxo{background:linear-gradient(135deg,#E8D9F5,#C9B4E8)}
+
+/* ── STARS ── */
+.stars{color:#F39C12;font-size:14px;letter-spacing:2px}
+
+/* ── SEARCH BAR ── */
+.search-wrap{position:relative;margin-bottom:24px}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--cinza)}
+.search-input{width:100%;padding:14px 16px 14px 44px;border-radius:14px;border:1.5px solid var(--borda);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--ouro)}
+
+/* ── FILTROS ── */
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.chip{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--borda);background:white;color:var(--cinza);transition:all .2s}
+.chip:hover{border-color:var(--ouro);color:var(--ouro)}
+.chip.active{background:var(--escuro);color:var(--ouro);border-color:var(--escuro)}
+
+/* ── PROF CARD ── */
+.prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.prof-card-full{background:white;border-radius:20px;border:1px solid var(--borda);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.prof-card-full:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1)}
+.prof-card-cover{height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative}
+.prof-card-body{padding:16px 20px}
+.prof-card-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px}
+.prof-card-role{font-size:13px;color:var(--cinza);margin-bottom:10px}
+.prof-card-footer{display:flex;justify-content:space-between;align-items:center}
+.prof-card-price{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ouro)}
+.prof-card-rating{font-size:13px;font-weight:600}
+.prof-card-badge{position:absolute;top:10px;right:10px;background:var(--escuro);color:var(--ouro);font-size:10px;font-weight:700;padding:4px 10px;border-radius:100px}
+
+/* ── AGENDAMENTO CARD ── */
+.agend-card{background:white;border-radius:16px;border:1px solid var(--borda);padding:18px 20px;display:flex;gap:16px;align-items:center;margin-bottom:12px;transition:box-shadow .2s}
+.agend-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.agend-dot{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--ouro),var(--ouro2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.agend-info{flex:1}
+.agend-nome{font-weight:700;font-size:15px;margin-bottom:3px}
+.agend-det{font-size:13px;color:var(--cinza)}
+.agend-time{text-align:right}
+.agend-date{font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--ouro)}
+.agend-val{font-size:13px;color:var(--cinza);margin-top:2px}
+
+/* ── PERFIL HEADER ── */
+.perfil-header-card{background:var(--escuro);border-radius:24px;padding:32px;display:flex;gap:24px;align-items:center;margin-bottom:24px;position:relative;overflow:hidden}
+.perfil-header-card::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,.15) 0%,transparent 70%)}
+.perfil-big-avatar{width:80px;height:80px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;background:linear-gradient(135deg,var(--ouro),var(--ouro2));flex-shrink:0;border:3px solid rgba(255,255,255,.15)}
+.perfil-header-info h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--creme);margin-bottom:4px}
+.perfil-header-info p{font-size:14px;color:rgba(255,255,255,.5)}
+
+/* ── GANHOS CHART ── */
+.ganhos-bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin:16px 0}
+.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar-fill{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(to top,var(--ouro),var(--ouro2));min-height:4px;transition:height .6s ease}
+.bar-label{font-size:10px;color:var(--cinza);font-weight:600}
+
+/* ── NOTIF ── */
+.notif-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--borda)}
+.notif-item:last-child{border-bottom:none}
+.notif-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-body{flex:1}
+.notif-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.notif-text{font-size:13px;color:var(--cinza);line-height:1.5}
+.notif-time{font-size:11px;color:var(--cinza);margin-top:4px}
+.notif-unread .notif-title::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ouro);margin-left:8px;vertical-align:middle}
+
+/* ── LOGIN PAGE ── */
+#view-login{background:var(--escuro);align-items:center;justify-content:center;padding:20px}
+.login-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:40px 36px;width:100%;max-width:420px;backdrop-filter:blur(10px)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .wm{font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--creme);line-height:1}
+.login-logo .wm span{color:var(--ouro)}
+.login-logo .tg{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:6px}
+.login-tabs{display:flex;background:rgba(255,255,255,.08);border-radius:12px;padding:3px;margin-bottom:24px}
+.login-tab{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.45)}
+.login-tab.active{background:white;color:var(--escuro);font-weight:700}
+
+/* ── HEADER DE SEÇÃO ── */
+.section-header{margin-bottom:28px}
+.section-header h1{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--escuro);margin-bottom:6px}
+.section-header p{font-size:14px;color:var(--cinza)}
+
+/* ── AVALIAÇÕES ── */
+.aval-card{background:white;border-radius:16px;padding:18px 20px;border:1px solid var(--borda);margin-bottom:12px}
+.aval-header{display:flex;justify-content:space-between;margin-bottom:8px}
+.aval-nome{font-weight:700;font-size:14px}
+.aval-texto{font-size:13px;color:var(--cinza);line-height:1.6}
+.aval-servico{font-size:11px;color:var(--cinza);margin-top:6px}
+
+/* ── TOGGLE ── */
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--borda)}
+.toggle-wrap:last-child{border-bottom:none}
+.toggle-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.toggle-info p{font-size:12px;color:var(--cinza)}
+.toggle{width:44px;height:24px;border-radius:100px;background:var(--borda);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--verde)}
+.toggle::after{content:'';width:18px;height:18px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .main-content{padding:20px}
+  .prof-grid{grid-template-columns:1fr}
+  .navbar{padding:0 16px}
 }
-
-.notch {
-  position:absolute; top:0; left:50%; transform:translateX(-50%);
-  width:120px; height:30px; background:#2a2420;
-  border-radius:0 0 20px 20px; z-index:100;
-}
-
-.status-bar {
-  position:absolute; top:0; left:0; right:0; height:44px;
-  display:flex; align-items:flex-end; justify-content:space-between;
-  padding:0 24px 6px; z-index:99; font-size:12px; font-weight:600;
-  color:var(--escuro);
-}
-.status-bar.light { color:var(--creme); }
-.status-icons { display:flex; gap:6px; align-items:center; }
-
-/* screens */
-.screen {
-  position:absolute; top:0; left:0; right:0; bottom:0;
-  overflow:hidden; display:none; flex-direction:column;
-}
-.screen.active { display:flex; }
-
-@keyframes fadeIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
-@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-@keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-.screen.active { animation:fadeIn .3s ease; }
-
-/* ── SPLASH ── */
-#splash { background:var(--escuro); align-items:center; justify-content:center; }
-.splash-bg {
-  position:absolute; inset:0;
-  background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(201,169,110,.18) 0%,transparent 70%),
-             radial-gradient(ellipse 40% 40% at 80% 80%,rgba(232,180,184,.1) 0%,transparent 60%);
-}
-.splash-logo { position:relative; z-index:2; text-align:center; }
-.wordmark { font-family:'Fraunces',serif; font-size:72px; font-weight:900; color:var(--creme); letter-spacing:-2px; line-height:1; }
-.wordmark span {
-  background:linear-gradient(135deg,var(--ouro),var(--ouro2),var(--ouro));
-  background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  animation:shimmer 3s linear infinite;
-}
-.tagline { font-size:13px; font-weight:300; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-top:10px; }
-.splash-btn {
-  position:relative; z-index:2; margin-top:56px;
-  background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro);
-  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:15px;
-  padding:18px 56px; border:none; border-radius:100px; cursor:pointer;
-  box-shadow:0 8px 32px rgba(201,169,110,.35); transition:transform .2s;
-}
-.splash-btn:hover { transform:scale(1.03); }
-.splash-links { position:relative; z-index:2; margin-top:20px; display:flex; gap:20px; }
-.splash-link {
-  font-size:12px; color:rgba(255,255,255,.35); cursor:pointer;
-  text-decoration:underline; background:none; border:none; font-family:'Plus Jakarta Sans',sans-serif;
-}
-.splash-link:hover { color:var(--ouro); }
-
-/* ── HOME ── */
-#home { background:var(--creme); }
-.home-header { background:var(--escuro); padding:52px 24px 28px; position:relative; overflow:hidden; }
-.home-header::after { content:''; position:absolute; bottom:-30px; right:-30px; width:120px; height:120px; border-radius:50%; background:rgba(201,169,110,.12); }
-.home-header-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
-.home-greeting { font-size:13px; color:rgba(255,255,255,.45); font-weight:300; margin-bottom:4px; }
-.home-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--creme); }
-.avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--ouro),var(--rosa)); display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid rgba(255,255,255,.15); }
-.search-bar { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.4); font-size:14px; }
-.home-scroll { flex:1; overflow-y:auto; padding:20px 20px 100px; scrollbar-width:none; }
-.home-scroll::-webkit-scrollbar { display:none; }
-.section-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; color:var(--escuro); margin-bottom:14px; }
-.cats { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; margin-bottom:24px; scrollbar-width:none; }
-.cats::-webkit-scrollbar { display:none; }
-.cat-chip { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; cursor:pointer; }
-.cat-icon { width:56px; height:56px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:22px; transition:transform .2s; }
-.cat-chip:hover .cat-icon { transform:scale(1.08); }
-.cat-icon.c1{background:var(--rosa2)} .cat-icon.c2{background:#E8F0E8} .cat-icon.c3{background:#F0EAE0} .cat-icon.c4{background:#E8EAF5} .cat-icon.c5{background:#F5EAF0}
-.cat-label { font-size:11px; font-weight:500; color:var(--cinza); white-space:nowrap; }
-.prof-cards { display:flex; gap:14px; overflow-x:auto; padding-bottom:4px; margin-bottom:24px; scrollbar-width:none; }
-.prof-cards::-webkit-scrollbar { display:none; }
-.prof-card { flex-shrink:0; width:160px; background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.06); cursor:pointer; transition:transform .2s,box-shadow .2s; }
-.prof-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,.1); }
-.prof-img { height:110px; display:flex; align-items:center; justify-content:center; font-size:40px; position:relative; }
-.prof-img.p1{background:linear-gradient(135deg,#F5D9DB,#E8B4B8)} .prof-img.p2{background:linear-gradient(135deg,#D9EAD9,#B4D4B8)} .prof-img.p3{background:linear-gradient(135deg,#F5EAD9,#E8C9A0)}
-.prof-badge { position:absolute; top:8px; right:8px; background:var(--escuro); color:var(--ouro); font-size:10px; font-weight:700; padding:3px 8px; border-radius:100px; }
-.prof-info { padding:10px 12px; }
-.prof-name { font-weight:600; font-size:13px; color:var(--escuro); margin-bottom:3px; }
-.prof-role { font-size:11px; color:var(--cinza); margin-bottom:6px; }
-.prof-meta { display:flex; justify-content:space-between; align-items:center; }
-.prof-rating { font-size:11px; color:var(--escuro); font-weight:600; }
-.prof-price { font-size:12px; font-weight:700; color:var(--ouro); }
-.next-card { background:var(--escuro); border-radius:20px; padding:18px 20px; display:flex; align-items:center; gap:16px; margin-bottom:12px; cursor:pointer; }
-.next-dot { width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.next-info { flex:1; }
-.next-name { font-weight:600; font-size:14px; color:var(--creme); margin-bottom:3px; }
-.next-detail { font-size:12px; color:rgba(255,255,255,.4); }
-.next-time { font-family:'Fraunces',serif; font-size:13px; font-weight:700; color:var(--ouro); text-align:right; }
-
-/* ── PERFIL ── */
-#perfil { background:var(--creme); }
-.perfil-cover { height:180px; background:linear-gradient(135deg,#F5D9DB 0%,#E8B4B8 50%,#C9A0A4 100%); display:flex; align-items:center; justify-content:center; font-size:70px; position:relative; }
-.perfil-avatar { position:absolute; bottom:-32px; left:24px; width:72px; height:72px; border-radius:22px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); border:3px solid var(--creme); display:flex; align-items:center; justify-content:center; font-size:32px; }
-.perfil-scroll { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:100px; }
-.perfil-scroll::-webkit-scrollbar { display:none; }
-.perfil-info { padding:44px 24px 20px; border-bottom:1px solid var(--borda); }
-.perfil-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--escuro); margin-bottom:4px; }
-.perfil-role { font-size:14px; color:var(--cinza); margin-bottom:12px; }
-.perfil-stats { display:flex; gap:24px; }
-.stat-num { font-family:'Fraunces',serif; font-size:20px; font-weight:700; color:var(--escuro); }
-.stat-label { font-size:11px; color:var(--cinza); }
-.servicos { padding:20px 24px; border-bottom:1px solid var(--borda); }
-.servico-item { display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--borda); cursor:pointer; }
-.servico-item:last-child { border-bottom:none; }
-.servico-nome { font-size:14px; font-weight:500; color:var(--escuro); margin-bottom:3px; }
-.servico-tempo { font-size:12px; color:var(--cinza); }
-.servico-preco { font-family:'Fraunces',serif; font-size:16px; font-weight:700; color:var(--ouro); }
-.avaliacoes { padding:20px 24px; }
-.aval-item { background:white; border-radius:16px; padding:14px 16px; margin-bottom:10px; }
-.aval-header { display:flex; justify-content:space-between; margin-bottom:8px; }
-.aval-nome { font-size:13px; font-weight:600; color:var(--escuro); }
-.aval-text { font-size:13px; color:var(--cinza); line-height:1.5; }
-.btn-agendar { position:absolute; bottom:100px; left:24px; right:24px; background:linear-gradient(135deg,var(--escuro),var(--escuro2)); color:var(--ouro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.2); transition:transform .2s; }
-.btn-agendar:hover { transform:scale(1.02); }
-
-/* ── AGENDA ── */
-#agenda { background:var(--creme); }
-.agenda-header { padding:52px 24px 20px; background:white; border-bottom:1px solid var(--borda); }
-.agenda-title { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--escuro); margin-bottom:4px; }
-.agenda-sub { font-size:13px; color:var(--cinza); }
-.agenda-scroll { flex:1; overflow-y:auto; padding:20px 24px 120px; scrollbar-width:none; }
-.agenda-scroll::-webkit-scrollbar { display:none; }
-.cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-.cal-month { font-family:'Fraunces',serif; font-size:16px; font-weight:700; color:var(--escuro); }
-.cal-nav { display:flex; gap:8px; }
-.cal-nav button { width:28px; height:28px; border-radius:8px; background:var(--creme2); border:none; cursor:pointer; font-size:14px; }
-.cal-days-header { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:8px; }
-.cal-day-name { font-size:11px; font-weight:600; color:var(--cinza); padding:4px 0; }
-.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:24px; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:13px; font-weight:500; color:var(--escuro); cursor:pointer; transition:all .15s; }
-.cal-day:hover{background:var(--creme2)} .cal-day.other{color:rgba(0,0,0,.2)} .cal-day.today{background:var(--creme2);font-weight:700} .cal-day.selected{background:var(--escuro);color:var(--ouro);font-weight:700}
-.horarios-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
-.horario-chip { background:white; border:1.5px solid var(--borda); border-radius:12px; padding:12px 8px; text-align:center; font-size:14px; font-weight:500; color:var(--escuro); cursor:pointer; transition:all .15s; }
-.horario-chip:hover{border-color:var(--ouro)} .horario-chip.selected{background:var(--escuro);color:var(--ouro);border-color:var(--escuro)} .horario-chip.ocupado{color:rgba(0,0,0,.2);pointer-events:none}
-.resumo-card { background:white; border-radius:20px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,.05); margin-bottom:16px; }
-.resumo-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--borda); font-size:13px; }
-.resumo-row:last-child{border-bottom:none} .resumo-row .label{color:var(--cinza)} .resumo-row .value{font-weight:600;color:var(--escuro)} .resumo-row .value.gold{color:var(--ouro);font-family:'Fraunces',serif;font-size:16px}
-.btn-confirmar { width:100%; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; box-shadow:0 8px 24px rgba(201,169,110,.35); transition:transform .2s; }
-.btn-confirmar:hover { transform:scale(1.02); }
-
-/* ── CONFIRMAÇÃO ── */
-#confirmacao { background:var(--escuro); align-items:center; justify-content:center; padding:40px 32px; }
-.confirm-bg { position:absolute; inset:0; background:radial-gradient(ellipse 70% 50% at 50% 20%,rgba(201,169,110,.15) 0%,transparent 60%); }
-.confirm-icon { width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); display:flex; align-items:center; justify-content:center; font-size:36px; margin-bottom:28px; position:relative; z-index:2; box-shadow:0 16px 40px rgba(201,169,110,.3); animation:fadeUp .5s ease .1s both; }
-.confirm-title { font-family:'Fraunces',serif; font-size:28px; font-weight:700; color:var(--creme); text-align:center; margin-bottom:8px; position:relative; z-index:2; animation:fadeUp .5s ease .2s both; }
-.confirm-sub { font-size:14px; color:rgba(255,255,255,.4); text-align:center; margin-bottom:40px; position:relative; z-index:2; line-height:1.6; animation:fadeUp .5s ease .3s both; }
-.confirm-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:24px; padding:24px; width:100%; position:relative; z-index:2; margin-bottom:28px; animation:fadeUp .5s ease .4s both; }
-.confirm-row { display:flex; align-items:center; gap:16px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.06); }
-.confirm-row:last-child{border-bottom:none}
-.confirm-row-icon { width:36px; height:36px; border-radius:10px; background:rgba(201,169,110,.15); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-.confirm-row-label{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:2px} .confirm-row-value{font-size:14px;font-weight:600;color:var(--creme)}
-.btn-home { width:100%; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:18px; border-radius:18px; border:none; cursor:pointer; position:relative; z-index:2; box-shadow:0 8px 32px rgba(201,169,110,.3); transition:transform .2s; animation:fadeUp .5s ease .5s both; }
-.btn-home:hover { transform:scale(1.02); }
-
-/* ── BOTTOM NAV ── */
-.bottom-nav { position:absolute; bottom:0; left:0; right:0; height:84px; background:white; border-top:1px solid rgba(0,0,0,.06); display:flex; align-items:flex-start; padding-top:12px; box-shadow:0 -8px 24px rgba(0,0,0,.06); }
-.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:4px 0; transition:opacity .2s; }
-.nav-item:hover{opacity:.7} .nav-icon{font-size:22px} .nav-label{font-size:10px;font-weight:500;color:var(--cinza)}
-.nav-item.active .nav-label{color:var(--ouro);font-weight:700}
-.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--ouro);margin-top:-2px}
-
-/* ── BACK BTN ── */
-.back-btn { position:absolute; top:52px; left:20px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; color:white; z-index:10; border:none; }
-
-/* ── MODAL JURÍDICO ── */
-.modal-overlay {
-  position:absolute; inset:0; background:rgba(0,0,0,.7);
-  display:none; align-items:flex-end; z-index:200;
-  backdrop-filter:blur(4px);
-}
-.modal-overlay.open { display:flex; }
-
-.modal-sheet {
-  background:var(--creme); width:100%; border-radius:28px 28px 0 0;
-  max-height:88%; display:flex; flex-direction:column;
-  animation:slideUp .35s ease;
-}
-
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-
-.modal-handle { width:40px; height:4px; background:var(--borda); border-radius:100px; margin:14px auto 0; flex-shrink:0; }
-
-.modal-header {
-  padding:16px 24px 14px; border-bottom:1px solid var(--borda);
-  display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0;
-}
-
-.modal-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; color:var(--escuro); line-height:1.3; }
-.modal-subtitle { font-size:12px; color:var(--cinza); margin-top:3px; }
-
-.modal-close { width:32px; height:32px; border-radius:50%; background:var(--creme2); border:none; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-
-.modal-body { flex:1; overflow-y:auto; padding:20px 24px; scrollbar-width:thin; }
-.modal-body::-webkit-scrollbar { width:4px; }
-.modal-body::-webkit-scrollbar-thumb { background:var(--borda); border-radius:100px; }
-
-/* Estilos do conteúdo jurídico */
-.doc-section { margin-bottom:24px; }
-.doc-section h3 { font-family:'Fraunces',serif; font-size:15px; font-weight:700; color:var(--escuro); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--borda); }
-.doc-section p { font-size:13px; color:#4A4038; line-height:1.7; margin-bottom:8px; }
-.doc-section ul { padding-left:16px; margin-bottom:8px; }
-.doc-section ul li { font-size:13px; color:#4A4038; line-height:1.7; margin-bottom:4px; }
-.doc-section strong { color:var(--escuro); font-weight:600; }
-.doc-lei { display:inline-block; background:var(--creme2); color:var(--cinza); font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px; margin-left:4px; }
-
-.modal-footer { padding:16px 24px 24px; border-top:1px solid var(--borda); flex-shrink:0; }
-
-.accept-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; cursor:pointer; }
-.accept-check { width:22px; height:22px; border-radius:6px; border:2px solid var(--borda); background:white; display:flex; align-items:center; justify-content:center; font-size:12px; color:transparent; flex-shrink:0; margin-top:1px; transition:all .2s; }
-.accept-check.checked { background:var(--verde); border-color:var(--verde); color:white; }
-.accept-text { font-size:13px; color:var(--cinza); line-height:1.5; }
-.accept-text strong { color:var(--escuro); }
-
-.btn-aceitar {
-  width:100%; background:linear-gradient(135deg,var(--escuro),var(--escuro2));
-  color:var(--ouro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px;
-  padding:16px; border-radius:16px; border:none; cursor:pointer;
-  transition:opacity .2s; opacity:.4; pointer-events:none;
-}
-.btn-aceitar.ativo { opacity:1; pointer-events:auto; }
-
-/* ── PAINEL LATERAL (documentos) ── */
-.docs-panel {
-  width:420px; max-width:100%;
-  display:flex; flex-direction:column; gap:16px;
-}
-
-.doc-card {
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:20px; padding:24px;
-}
-
-.doc-card-tag {
-  display:inline-block;
-  background:rgba(201,169,110,.15); color:var(--ouro2);
-  font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-  padding:4px 12px; border-radius:100px; margin-bottom:12px;
-}
-
-.doc-card h2 {
-  font-family:'Fraunces',serif; font-size:20px; font-weight:700;
-  color:rgba(255,255,255,.9); margin-bottom:6px;
-}
-
-.doc-card p { font-size:13px; color:rgba(255,255,255,.45); line-height:1.6; margin-bottom:16px; }
-
-.doc-card .leis { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
-.lei-chip { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); font-size:11px; font-weight:500; padding:4px 10px; border-radius:100px; }
-
-.btn-ver {
-  background:rgba(201,169,110,.15); color:var(--ouro);
-  border:1px solid rgba(201,169,110,.3);
-  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:13px;
-  padding:10px 20px; border-radius:100px; cursor:pointer; transition:all .2s;
-}
-.btn-ver:hover { background:rgba(201,169,110,.25); }
-
-.nav-btns { display:flex; gap:8px; flex-wrap:wrap; }
-.nav-btns button {
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-  color:rgba(255,255,255,.5); font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:11px; font-weight:600; letter-spacing:1px;
-  padding:8px 14px; border-radius:100px; cursor:pointer; transition:all .2s;
-}
-.nav-btns button:hover, .nav-btns button.active {
-  background:rgba(201,169,110,.2); border-color:var(--ouro); color:var(--ouro2);
-}
-
-@media(max-width:900px) { .docs-panel { width:100%; max-width:500px; } body { flex-direction:column; align-items:center; } }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ PHONE ═══════════════ -->
-<div class="phone-wrap">
-  <div class="scene-label">Zuli — Protótipo Interativo</div>
+<!-- ════════════════════════════════════
+     VIEW: LOGIN
+════════════════════════════════════ -->
+<div class="view active" id="view-login" style="background:var(--escuro)">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(201,169,110,.15) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(232,180,184,.08) 0%,transparent 60%)"></div>
 
-  <div class="phone" id="phone">
-    <div class="notch"></div>
-    <div class="status-bar light" id="statusBar">
-      <span>9:41</span>
-      <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+  <div class="login-box" style="position:relative;z-index:2">
+    <div class="login-logo">
+      <div class="wm">Z<span>uli</span></div>
+      <div class="tg">Agende · Brilhe · Repita</div>
     </div>
 
-    <!-- ══════ TELA LOGIN ══════ -->
-    <div class="screen" id="login" style="background:var(--escuro); align-items:center; justify-content:flex-start; overflow-y:auto;">
-      <div class="splash-bg"></div>
-
-      <div style="text-align:center; margin-top:72px; position:relative; z-index:2; padding:0 32px;">
-        <div class="wordmark">Z<span>uli</span></div>
-        <div class="tagline">Agende · Brilhe · Repita</div>
-      </div>
-
-      <div style="position:relative; z-index:2; padding:32px 28px 48px; width:100%;">
-
-        <!-- Abas -->
-        <div style="display:flex; background:rgba(255,255,255,0.08); border-radius:14px; padding:4px; margin-bottom:24px;">
-          <button id="aba-entrar" onclick="trocarAba('entrar')"
-            style="flex:1; padding:11px; border:none; border-radius:10px; background:white; color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:all .2s;">
-            Entrar
-          </button>
-          <button id="aba-cadastrar" onclick="trocarAba('cadastrar')"
-            style="flex:1; padding:11px; border:none; border-radius:10px; background:transparent; color:rgba(255,255,255,0.5); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:14px; cursor:pointer; transition:all .2s;">
-            Cadastrar
-          </button>
-        </div>
-
-        <!-- Campo Nome -->
-        <div id="campo-nome" style="display:none; margin-bottom:12px;">
-          <input id="inp-nome" type="text" placeholder="Seu nome completo"
-            style="width:100%; padding:15px 16px; border-radius:14px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:white; font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; outline:none;">
-        </div>
-
-        <!-- Email -->
-        <div style="margin-bottom:12px;">
-          <input id="inp-email" type="email" placeholder="Seu e-mail"
-            style="width:100%; padding:15px 16px; border-radius:14px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:white; font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; outline:none;">
-        </div>
-
-        <!-- Senha -->
-        <div style="margin-bottom:20px;">
-          <input id="inp-senha" type="password" placeholder="Sua senha (mín. 6 caracteres)"
-            style="width:100%; padding:15px 16px; border-radius:14px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:white; font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; outline:none;">
-        </div>
-
-        <!-- Mensagem erro -->
-        <div id="msg-erro" style="display:none; background:rgba(192,57,43,0.2); border:1px solid rgba(192,57,43,0.5); border-radius:10px; padding:12px 16px; margin-bottom:14px; color:#FF8A80; font-size:13px; text-align:center; font-family:'Plus Jakarta Sans',sans-serif;"></div>
-
-        <!-- Mensagem ok -->
-        <div id="msg-ok" style="display:none; background:rgba(61,153,112,0.2); border:1px solid rgba(61,153,112,0.5); border-radius:10px; padding:12px 16px; margin-bottom:14px; color:#80FFB8; font-size:13px; text-align:center; font-family:'Plus Jakarta Sans',sans-serif;"></div>
-
-        <!-- Botão principal -->
-        <button id="btn-auth" onclick="autenticar()"
-          style="width:100%; background:linear-gradient(135deg,var(--ouro),var(--ouro2)); color:var(--escuro); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; padding:17px; border-radius:16px; border:none; cursor:pointer; margin-bottom:16px; box-shadow:0 8px 24px rgba(201,169,110,0.35); transition:opacity .2s;">
-          Entrar
-        </button>
-
-        <!-- Separador -->
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-          <div style="flex:1; height:1px; background:rgba(255,255,255,0.1);"></div>
-          <span style="font-size:12px; color:rgba(255,255,255,0.3); font-family:'Plus Jakarta Sans',sans-serif;">ou</span>
-          <div style="flex:1; height:1px; background:rgba(255,255,255,0.1);"></div>
-        </div>
-
-        <!-- Google -->
-        <button onclick="loginGoogle()"
-          style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:14px; padding:15px; border-radius:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px;">
-          <span style="font-size:18px; font-weight:700;">G</span> Continuar com Google
-        </button>
-
-        <!-- Termos -->
-        <p style="text-align:center; font-size:11px; color:rgba(255,255,255,0.25); line-height:1.7; font-family:'Plus Jakarta Sans',sans-serif;">
-          Ao continuar você aceita nossos
-          <span onclick="abrirModal('termos')" style="color:var(--ouro); cursor:pointer;">Termos de Uso</span>
-          e a
-          <span onclick="abrirModal('privacidade')" style="color:var(--ouro); cursor:pointer;">Política de Privacidade</span>
-        </p>
-      </div>
+    <div class="login-tabs">
+      <button class="login-tab active" id="tab-entrar" onclick="trocarTab('entrar')">Entrar</button>
+      <button class="login-tab" id="tab-cadastrar" onclick="trocarTab('cadastrar')">Cadastrar</button>
     </div>
 
-    <!-- SPLASH -->
-    <div class="screen active" id="splash">
-      <div class="splash-bg"></div>
-      <div class="splash-logo">
-        <div class="wordmark">Z<span>uli</span></div>
-        <div class="tagline">Agende · Brilhe · Repita</div>
-      </div>
-      <button class="splash-btn" onclick="goTo('home')">Entrar</button>
-      <div class="splash-links">
-        <button class="splash-link" onclick="abrirModal('termos')">Termos de Uso</button>
-        <button class="splash-link" onclick="abrirModal('privacidade')">Privacidade</button>
-        <button class="splash-link" onclick="abrirModal('contrato')">Para Profissionais</button>
-      </div>
+    <div id="campo-nome-login" class="input-group hidden">
+      <label class="input-label" style="color:rgba(255,255,255,.7)">Nome completo</label>
+      <input class="input input-dark" id="inp-nome" type="text" placeholder="Seu nome completo">
+    </div>
+    <div class="input-group">
+      <label class="input-label" style="color:rgba(255,255,255,.7)">E-mail</label>
+      <input class="input input-dark" id="inp-email" type="email" placeholder="seu@email.com">
+    </div>
+    <div class="input-group">
+      <label class="input-label" style="color:rgba(255,255,255,.7)">Senha</label>
+      <input class="input input-dark" id="inp-senha" type="password" placeholder="Mínimo 6 caracteres">
     </div>
 
-    <!-- HOME -->
-    <div class="screen" id="home">
-      <div class="home-header">
-        <div class="home-header-top">
-          <div><div class="home-greeting">Boa tarde,</div><div class="home-name">Ana Lima ✨</div></div>
-          <div class="avatar">👩</div>
-        </div>
-        <div class="search-bar"><span>🔍</span>Buscar serviço ou profissional...</div>
-      </div>
-      <div class="home-scroll">
-        <div class="section-title" style="margin-top:4px">Categorias</div>
-        <div class="cats">
-          <div class="cat-chip"><div class="cat-icon c1">💅</div><div class="cat-label">Unhas</div></div>
-          <div class="cat-chip"><div class="cat-icon c2">✂️</div><div class="cat-label">Cabelo</div></div>
-          <div class="cat-chip"><div class="cat-icon c3">🧖</div><div class="cat-label">Estética</div></div>
-          <div class="cat-chip"><div class="cat-icon c4">🧔</div><div class="cat-label">Barbearia</div></div>
-          <div class="cat-chip"><div class="cat-icon c5">💆</div><div class="cat-label">Massagem</div></div>
-        </div>
-        <div class="section-title">Em destaque</div>
-        <div class="prof-cards">
-          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p1">💅<div class="prof-badge">⭐ Top</div></div><div class="prof-info"><div class="prof-name">Camila Costa</div><div class="prof-role">Nail designer</div><div class="prof-meta"><div class="prof-rating">⭐ 4.9</div><div class="prof-price">R$ 65</div></div></div></div>
-          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p2">✂️</div><div class="prof-info"><div class="prof-name">Rafael Melo</div><div class="prof-role">Cabeleireiro</div><div class="prof-meta"><div class="prof-rating">⭐ 4.8</div><div class="prof-price">R$ 90</div></div></div></div>
-          <div class="prof-card" onclick="goTo('perfil')"><div class="prof-img p3">🧖</div><div class="prof-info"><div class="prof-name">Julia Pires</div><div class="prof-role">Esteticista</div><div class="prof-meta"><div class="prof-rating">⭐ 5.0</div><div class="prof-price">R$ 120</div></div></div></div>
-        </div>
-        <div class="section-title">Próximos agendamentos</div>
-        <div class="next-card" onclick="goTo('agenda')"><div class="next-dot">💅</div><div class="next-info"><div class="next-name">Manicure gel</div><div class="next-detail">Camila Costa • Vila Madalena</div></div><div class="next-time">Amanhã<br>14:00</div></div>
-      </div>
-      <div class="bottom-nav">
-        <div class="nav-item active" onclick="goTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div><div class="nav-dot"></div></div>
-        <div class="nav-item" onclick="goTo('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-        <div class="nav-item"><div class="nav-icon">🔔</div><div class="nav-label">Avisos</div></div>
-        <div class="nav-item"><div class="nav-icon">👤</div><div class="nav-label">Perfil</div></div>
-      </div>
+    <div id="campo-perfil-login" class="input-group hidden">
+      <label class="input-label" style="color:rgba(255,255,255,.7)">Tipo de conta</label>
+      <select class="input input-dark" id="inp-perfil">
+        <option value="cliente">👤 Sou cliente — quero agendar serviços</option>
+        <option value="profissional">💅 Sou profissional — quero oferecer serviços</option>
+      </select>
     </div>
 
-    <!-- PERFIL -->
-    <div class="screen" id="perfil">
-      <button class="back-btn" onclick="goTo('home')">←</button>
-      <div class="perfil-cover">💅<div class="perfil-avatar">👩</div></div>
-      <div class="perfil-scroll">
-        <div class="perfil-info"><div class="perfil-name">Camila Costa</div><div class="perfil-role">Nail Designer • Vila Madalena, SP</div><div class="perfil-stats"><div class="stat"><div class="stat-num">4.9</div><div class="stat-label">⭐ Nota</div></div><div class="stat"><div class="stat-num">847</div><div class="stat-label">Clientes</div></div><div class="stat"><div class="stat-num">3 anos</div><div class="stat-label">Experiência</div></div></div></div>
-        <div class="servicos"><div class="section-title" style="font-size:16px">Serviços</div>
-          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Manicure simples</div><div class="servico-tempo">⏱ 45 min</div></div><div class="servico-preco">R$ 45</div></div>
-          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Manicure gel</div><div class="servico-tempo">⏱ 90 min</div></div><div class="servico-preco">R$ 65</div></div>
-          <div class="servico-item" onclick="goTo('agenda')"><div><div class="servico-nome">Pedicure completa</div><div class="servico-tempo">⏱ 60 min</div></div><div class="servico-preco">R$ 55</div></div>
-        </div>
-        <div class="avaliacoes"><div class="section-title" style="font-size:16px">Avaliações</div>
-          <div class="aval-item"><div class="aval-header"><div class="aval-nome">Bruna M.</div><div>⭐⭐⭐⭐⭐</div></div><div class="aval-text">"Amei o resultado! Camila é super caprichosa. Já marquei novamente!"</div></div>
-          <div class="aval-item"><div class="aval-header"><div class="aval-nome">Fernanda S.</div><div>⭐⭐⭐⭐⭐</div></div><div class="aval-text">"Melhor nail designer que já fui. Durou 3 semanas sem lascar!"</div></div>
-        </div>
-      </div>
-      <button class="btn-agendar" onclick="goTo('agenda')">Agendar horário →</button>
-      <div class="bottom-nav">
-        <div class="nav-item" onclick="goTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div></div>
-        <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div><div class="nav-dot"></div></div>
-        <div class="nav-item"><div class="nav-icon">🔔</div><div class="nav-label">Avisos</div></div>
-        <div class="nav-item"><div class="nav-icon">👤</div><div class="nav-label">Perfil</div></div>
-      </div>
+    <div class="alert alert-erro" id="login-erro">⚠️ </div>
+    <div class="alert alert-ok" id="login-ok">✅ </div>
+
+    <button class="btn btn-gold btn-full" id="btn-auth" onclick="autenticar()">Entrar</button>
+
+    <div style="display:flex;align-items:center;gap:12px;margin:16px 0">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
+      <span style="font-size:12px;color:rgba(255,255,255,.3)">ou</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
     </div>
 
-    <!-- AGENDA -->
-    <div class="screen" id="agenda">
-      <div class="agenda-header">
-        <button style="background:var(--creme2);color:var(--escuro);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;margin-bottom:12px;font-size:16px;" onclick="goTo('perfil')">←</button>
-        <div class="agenda-title">Escolha o horário</div>
-        <div class="agenda-sub">Manicure gel • Camila Costa</div>
-      </div>
-      <div class="agenda-scroll">
-        <div class="cal-header"><div class="cal-month">Março 2026</div><div class="cal-nav"><button>‹</button><button>›</button></div></div>
-        <div class="cal-days-header"><div class="cal-day-name">D</div><div class="cal-day-name">S</div><div class="cal-day-name">T</div><div class="cal-day-name">Q</div><div class="cal-day-name">Q</div><div class="cal-day-name">S</div><div class="cal-day-name">S</div></div>
-        <div class="cal-days" id="calDays2"></div>
-        <div class="section-title" style="font-size:15px">Horários disponíveis</div>
-        <div class="horarios-grid">
-          <div class="horario-chip ocupado">09:00</div><div class="horario-chip" onclick="selH(this)">10:00</div><div class="horario-chip" onclick="selH(this)">11:00</div>
-          <div class="horario-chip ocupado">13:00</div><div class="horario-chip selected" onclick="selH(this)">14:00</div><div class="horario-chip" onclick="selH(this)">15:30</div>
-          <div class="horario-chip" onclick="selH(this)">16:00</div><div class="horario-chip ocupado">17:00</div><div class="horario-chip" onclick="selH(this)">18:30</div>
-        </div>
-        <div class="section-title" style="font-size:15px">Resumo</div>
-        <div class="resumo-card">
-          <div class="resumo-row"><div class="label">Serviço</div><div class="value">Manicure gel</div></div>
-          <div class="resumo-row"><div class="label">Profissional</div><div class="value">Camila Costa</div></div>
-          <div class="resumo-row"><div class="label">Data</div><div class="value">22 mar 2026</div></div>
-          <div class="resumo-row"><div class="label">Horário</div><div class="value">14:00</div></div>
-          <div class="resumo-row"><div class="label">Total</div><div class="value gold">R$ 65,00</div></div>
-        </div>
-        <button class="btn-confirmar" id="btn-pagar" onclick="iniciarPagamento()">Confirmar e pagar →</button>
-      </div>
-    </div>
+    <button class="btn btn-outline btn-full" style="border-color:rgba(255,255,255,.15);color:white" onclick="loginGoogle()">
+      <span style="font-weight:800;font-size:16px">G</span> Continuar com Google
+    </button>
 
-    <!-- CONFIRMAÇÃO -->
-    <div class="screen" id="confirmacao">
-      <div class="confirm-bg"></div>
-      <div class="confirm-icon">✅</div>
-      <div class="confirm-title">Tudo certo!</div>
-      <div class="confirm-sub">Agendamento confirmado.<br>Até lá, cuide-se! 💛</div>
-      <div class="confirm-card">
-        <div class="confirm-row"><div class="confirm-row-icon">💅</div><div><div class="confirm-row-label">Serviço</div><div class="confirm-row-value">Manicure gel</div></div></div>
-        <div class="confirm-row"><div class="confirm-row-icon">👩</div><div><div class="confirm-row-label">Profissional</div><div class="confirm-row-value">Camila Costa</div></div></div>
-        <div class="confirm-row"><div class="confirm-row-icon">📅</div><div><div class="confirm-row-label">Data e hora</div><div class="confirm-row-value">22 mar · 14:00</div></div></div>
-        <div class="confirm-row"><div class="confirm-row-icon">💳</div><div><div class="confirm-row-label">Pagamento</div><div class="confirm-row-value">R$ 65,00 · Pix</div></div></div>
-      </div>
-      <button class="btn-home" onclick="goTo('home')">Voltar para o início</button>
-    </div>
 
-    <!-- ── MODAIS JURÍDICOS ── -->
 
-    <!-- TERMOS DE USO -->
-    <div class="modal-overlay" id="modal-termos">
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
-        <div class="modal-header">
-          <div><div class="modal-title">Termos de Uso</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Última atualização: março/2026</div></div>
-          <button class="modal-close" onclick="fecharModal('termos')">✕</button>
-        </div>
-        <div class="modal-body">
-
-          <div class="doc-section">
-            <h3>1. Das Partes e do Objeto</h3>
-            <p>Os presentes Termos de Uso regulam a relação entre a <strong>Zuli Tecnologia Ltda.</strong> (doravante "Zuli"), pessoa jurídica de direito privado, inscrita no CNPJ sob o nº [00.000.000/0001-00], com sede em [Cidade/UF], e o <strong>Usuário</strong>, pessoa física maior de 18 anos <span class="doc-lei">Lei 10.406/02 — CC Art. 3º</span>, que acessa a plataforma digital Zuli por meio do aplicativo móvel ou website.</p>
-            <p>A Zuli é uma plataforma de intermediação tecnológica que conecta usuários a profissionais de beleza autônomos. <strong>A Zuli não presta serviços de beleza diretamente</strong>, atuando exclusivamente como intermediária. <span class="doc-lei">CDC Art. 14</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>2. Aceitação e Vigência</h3>
-            <p>O uso da plataforma implica aceitação integral e irrestrita destes Termos. O Usuário deve ler atentamente antes de se cadastrar. A aceitação é registrada eletronicamente com data, hora e endereço IP, tendo plena validade jurídica. <span class="doc-lei">MP 2.200-2/01</span></p>
-            <p>Estes Termos vigoram por prazo indeterminado e podem ser atualizados a qualquer momento mediante notificação ao Usuário com antecedência mínima de 10 (dez) dias. O uso continuado da plataforma após as alterações constitui aceitação tácita das novas condições.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>3. Cadastro e Responsabilidades do Usuário</h3>
-            <p>Para utilizar a Zuli, o Usuário deverá:</p>
-            <ul>
-              <li>Ter capacidade civil plena (mínimo 18 anos) ou assistência legal <span class="doc-lei">CC Art. 4º</span></li>
-              <li>Fornecer informações verdadeiras, completas e atualizadas</li>
-              <li>Manter sigilo de suas credenciais de acesso</li>
-              <li>Utilizar a plataforma exclusivamente para fins lícitos</li>
-              <li>Não ceder, vender ou transferir sua conta a terceiros</li>
-            </ul>
-            <p>O Usuário é integralmente responsável por todas as atividades realizadas em sua conta. A Zuli não se responsabiliza por prejuízos decorrentes do uso indevido ou não autorizado das credenciais do Usuário.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>4. Funcionamento da Plataforma e Pagamentos</h3>
-            <p>Os serviços são prestados diretamente pelos profissionais cadastrados, que atuam como autônomos independentes. A Zuli cobra uma <strong>taxa de intermediação de 12% (doze por cento)</strong> sobre o valor de cada serviço realizado, retida automaticamente no processamento do pagamento.</p>
-            <p>Os pagamentos são processados por gateway certificado (PCI-DSS). O usuário pode pagar via cartão de crédito, débito ou Pix. A confirmação do agendamento ocorre apenas após a confirmação do pagamento. <span class="doc-lei">Lei 12.865/13</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>5. Política de Cancelamento e Reembolso</h3>
-            <ul>
-              <li><strong>Cancelamento com +2h de antecedência:</strong> reembolso integral em até 5 dias úteis</li>
-              <li><strong>Cancelamento com menos de 2h:</strong> reembolso de 50% do valor pago</li>
-              <li><strong>No-show do Usuário:</strong> sem reembolso</li>
-              <li><strong>No-show ou cancelamento pelo profissional:</strong> reembolso integral + crédito de R$ 15,00 na plataforma</li>
-              <li><strong>Serviço insatisfatório comprovado:</strong> análise em até 48h com possibilidade de reembolso parcial ou total</li>
-            </ul>
-            <p>Os reembolsos são processados pelo mesmo meio de pagamento utilizado na compra, conforme previsto no Código de Defesa do Consumidor. <span class="doc-lei">CDC Art. 49</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>6. Responsabilidades e Limitações da Zuli</h3>
-            <p>A Zuli envidarã todos os esforços para manter a plataforma disponível, mas não garante disponibilidade ininterrupta. A Zuli <strong>não se responsabiliza por</strong>:</p>
-            <ul>
-              <li>Qualidade dos serviços prestados pelos profissionais</li>
-              <li>Danos causados por profissionais durante o atendimento</li>
-              <li>Divergências entre o serviço contratado e o efetivamente prestado</li>
-              <li>Reações alérgicas ou adversas a produtos utilizados pelo profissional</li>
-            </ul>
-            <p>A responsabilidade da Zuli limita-se ao valor da transação objeto da reclamação. <span class="doc-lei">CDC Art. 14 §3º</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>7. Proteção de Menores — ECA Digital</h3>
-            <p>Em conformidade com a <strong>Lei nº 15.211/2025 (ECA Digital)</strong>, que entrou em vigor em 17 de março de 2026, a Zuli adota as seguintes medidas de proteção:</p>
-            <ul>
-              <li>Vedação de cadastro para menores de 18 anos sem consentimento do responsável legal</li>
-              <li>Ausência de perfil comportamental para fins publicitários</li>
-              <li>Configurações de privacidade máxima ativadas por padrão (privacy by design)</li>
-              <li>Verificação de idade no cadastro por meio de documento válido</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>8. Propriedade Intelectual</h3>
-            <p>Todo o conteúdo da plataforma Zuli — marca, logotipo, layout, código-fonte, design e textos — é protegido por direitos autorais e de propriedade intelectual, sendo vedada sua reprodução sem autorização expressa. <span class="doc-lei">Lei 9.610/98</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>9. Foro e Legislação Aplicável</h3>
-            <p>Estes Termos são regidos pela legislação brasileira. As partes elegem o foro da comarca de <strong>[Cidade/UF]</strong> para dirimir quaisquer controvérsias, com renúncia expressa a qualquer outro, por mais privilegiado que seja. <span class="doc-lei">CPC Art. 63</span></p>
-            <p>Aplicam-se subsidiariamente: o Código Civil (Lei 10.406/02), o Código de Defesa do Consumidor (Lei 8.078/90), o Marco Civil da Internet (Lei 12.965/14) e a LGPD (Lei 13.709/18).</p>
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <div class="accept-row" onclick="toggleCheck('check-termos','btn-termos')">
-            <div class="accept-check" id="check-termos">✓</div>
-            <div class="accept-text">Li e aceito integralmente os <strong>Termos de Uso</strong> da Zuli, incluindo a política de cancelamento e as responsabilidades descritas.</div>
-          </div>
-          <button class="btn-aceitar" id="btn-termos" onclick="fecharModal('termos');goTo('home')">Aceitar e continuar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- POLÍTICA DE PRIVACIDADE -->
-    <div class="modal-overlay" id="modal-privacidade">
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
-        <div class="modal-header">
-          <div><div class="modal-title">Política de Privacidade</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Conforme LGPD (Lei 13.709/18)</div></div>
-          <button class="modal-close" onclick="fecharModal('privacidade')">✕</button>
-        </div>
-        <div class="modal-body">
-
-          <div class="doc-section">
-            <h3>1. Controlador dos Dados</h3>
-            <p>O controlador dos dados pessoais tratados nesta plataforma é a <strong>Zuli Tecnologia Ltda.</strong>, CNPJ [00.000.000/0001-00]. O Encarregado pelo Tratamento de Dados (DPO) pode ser contatado pelo e-mail: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b4c4c6ddc2d5d7ddd0d5d0d1f4cec1d8dd9ad7dbd99ad6c6">[email&#160;protected]</a></strong>. <span class="doc-lei">LGPD Art. 41</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>2. Dados Coletados e Finalidade</h3>
-            <p>A Zuli coleta exclusivamente os dados necessários à prestação do serviço (princípio da minimização): <span class="doc-lei">LGPD Art. 6º, III</span></p>
-            <ul>
-              <li><strong>Dados de cadastro:</strong> nome completo, e-mail, telefone, data de nascimento — para identificação e comunicação</li>
-              <li><strong>Dados de pagamento:</strong> processados pelo gateway (a Zuli não armazena dados de cartão)</li>
-              <li><strong>Histórico de agendamentos:</strong> para gestão de serviços e emissão de comprovantes</li>
-              <li><strong>Dados de localização (opcional):</strong> para sugestão de profissionais próximos, mediante consentimento</li>
-              <li><strong>Dados de uso:</strong> logs de acesso, conforme obrigação legal <span class="doc-lei">Marco Civil Art. 15</span></li>
-            </ul>
-            <p><strong>A Zuli não coleta, processa nem vende dados sensíveis</strong> (origem racial, opinião política, saúde, biometria). <span class="doc-lei">LGPD Art. 11</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>3. Base Legal para Tratamento</h3>
-            <p>O tratamento de dados pela Zuli fundamenta-se nas seguintes bases legais: <span class="doc-lei">LGPD Art. 7º</span></p>
-            <ul>
-              <li><strong>Consentimento</strong> (Art. 7º, I): para comunicações de marketing e uso de localização</li>
-              <li><strong>Execução de contrato</strong> (Art. 7º, V): para processamento de agendamentos e pagamentos</li>
-              <li><strong>Obrigação legal</strong> (Art. 7º, II): para guarda de logs de acesso por 6 meses</li>
-              <li><strong>Legítimo interesse</strong> (Art. 7º, IX): para prevenção a fraudes e segurança da plataforma</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>4. Compartilhamento de Dados</h3>
-            <p>Os dados do Usuário poderão ser compartilhados com:</p>
-            <ul>
-              <li><strong>Profissional contratado:</strong> nome e telefone para confirmação do agendamento</li>
-              <li><strong>Gateway de pagamento:</strong> dados necessários para processamento da transação</li>
-              <li><strong>Autoridades públicas:</strong> quando exigido por lei ou ordem judicial</li>
-            </ul>
-            <p><strong>A Zuli não vende dados pessoais a terceiros</strong> sob qualquer circunstância. <span class="doc-lei">LGPD Art. 6º, I</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>5. Retenção e Exclusão de Dados</h3>
-            <p>Os dados são mantidos pelos seguintes prazos:</p>
-            <ul>
-              <li><strong>Dados de cadastro ativos:</strong> enquanto a conta estiver ativa</li>
-              <li><strong>Histórico de transações:</strong> 5 anos (obrigação fiscal) <span class="doc-lei">CTN Art. 173</span></li>
-              <li><strong>Logs de acesso:</strong> 6 meses <span class="doc-lei">Marco Civil Art. 15</span></li>
-              <li><strong>Contas inativas:</strong> excluídas após 24 meses sem uso, mediante aviso prévio</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>6. Direitos do Titular</h3>
-            <p>O Usuário tem direito a, a qualquer momento, mediante solicitação para <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2454564d5245474d40454041645e51484d0a474b490a4656">[email&#160;protected]</a></strong> (prazo de resposta: 15 dias): <span class="doc-lei">LGPD Art. 18</span></p>
-            <ul>
-              <li>Confirmar a existência de tratamento de seus dados</li>
-              <li>Acessar uma cópia dos dados que a Zuli possui</li>
-              <li>Corrigir dados incompletos ou desatualizados</li>
-              <li>Solicitar a anonimização, bloqueio ou eliminação dos dados</li>
-              <li>Revogar o consentimento a qualquer momento</li>
-              <li>Portabilidade dos dados para outro fornecedor</li>
-              <li>Apresentar reclamação à ANPD</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>7. Segurança da Informação</h3>
-            <p>A Zuli adota as seguintes medidas técnicas e organizacionais: <span class="doc-lei">LGPD Art. 46</span></p>
-            <ul>
-              <li>Criptografia TLS 1.3 em todas as comunicações (HTTPS)</li>
-              <li>Criptografia dos dados em repouso no banco de dados</li>
-              <li>Controle de acesso por perfil (RBAC)</li>
-              <li>Logs de auditoria de acesso a dados</li>
-              <li>Em caso de incidente, notificação à ANPD em até 72h <span class="doc-lei">LGPD Art. 48</span></li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>8. Cookies e Tecnologias de Rastreamento</h3>
-            <p>A Zuli utiliza cookies estritamente necessários ao funcionamento da plataforma e, mediante consentimento, cookies analíticos (ex: Firebase Analytics). O Usuário pode gerenciar suas preferências nas configurações do dispositivo.</p>
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <div class="accept-row" onclick="toggleCheck('check-priv','btn-priv')">
-            <div class="accept-check" id="check-priv">✓</div>
-            <div class="accept-text">Li e aceito a <strong>Política de Privacidade</strong> da Zuli e consinto com o tratamento dos meus dados pessoais conforme descrito.</div>
-          </div>
-          <button class="btn-aceitar" id="btn-priv" onclick="fecharModal('privacidade')">Aceitar e continuar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- CONTRATO PROFISSIONAL -->
-    <div class="modal-overlay" id="modal-contrato">
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
-        <div class="modal-header">
-          <div><div class="modal-title">Contrato com Profissional</div><div class="modal-subtitle">Zuli Tecnologia Ltda. • Prestação de Serviços de Intermediação</div></div>
-          <button class="modal-close" onclick="fecharModal('contrato')">✕</button>
-        </div>
-        <div class="modal-body">
-
-          <div class="doc-section">
-            <h3>Preâmbulo</h3>
-            <p>Este instrumento particular de <strong>Contrato de Prestação de Serviços de Intermediação Digital</strong> é celebrado entre:</p>
-            <p><strong>CONTRATANTE:</strong> Zuli Tecnologia Ltda., CNPJ [00.000.000/0001-00], doravante denominada simplesmente "Zuli".</p>
-            <p><strong>CONTRATADO(A):</strong> Profissional de beleza autônomo(a) devidamente cadastrado(a) na plataforma, com os dados fornecidos no ato do cadastro, doravante denominado(a) "Profissional".</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 1ª — Do Objeto</h3>
-            <p>A Zuli disponibiliza ao Profissional acesso à sua plataforma digital de intermediação, por meio da qual o Profissional poderá oferecer seus serviços de beleza a usuários finais (clientes). A Zuli atua exclusivamente como intermediária tecnológica, não existindo qualquer vínculo empregatício entre as partes. <span class="doc-lei">CLT Art. 3º</span></p>
-            <p>O presente contrato não gera exclusividade. O Profissional permanece livre para atender clientes por outros canais e plataformas.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 2ª — Das Obrigações da Zuli</h3>
-            <p>Compete à Zuli:</p>
-            <ul>
-              <li>Disponibilizar a plataforma em condições técnicas adequadas de funcionamento</li>
-              <li>Processar os pagamentos dos clientes com segurança</li>
-              <li>Repassar ao Profissional o valor líquido acordado no prazo estipulado</li>
-              <li>Fornecer suporte técnico em horário comercial</li>
-              <li>Notificar o Profissional sobre novos agendamentos em tempo real</li>
-              <li>Manter sigilo sobre os dados do Profissional</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 3ª — Das Obrigações do Profissional</h3>
-            <p>Compete ao Profissional:</p>
-            <ul>
-              <li>Prestar os serviços com qualidade, pontualidade e profissionalismo</li>
-              <li>Manter seus dados cadastrais atualizados (nome, serviços, preços, disponibilidade)</li>
-              <li>Comunicar ausências ou cancelamentos com mínimo de 24h de antecedência</li>
-              <li>Zelar pela higiene e segurança nos atendimentos, em conformidade com as normas da ANVISA</li>
-              <li>Emitir nota fiscal ou recibo pelos serviços prestados, conforme a legislação fiscal vigente</li>
-              <li>Responder pessoal e integralmente por danos causados aos clientes durante os atendimentos</li>
-              <li>Não abordar clientes captados pela plataforma para atendimento fora dela pelo período de vigência do contrato e por 6 meses após rescisão</li>
-            </ul>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 4ª — Da Remuneração, Repasses e Processamento de Pagamentos</h3>
-
-            <p><strong>4.1 — Taxa de intermediação</strong><br>
-            O Profissional receberá <strong>88% (oitenta e oito por cento) do valor bruto</strong> cobrado ao cliente por cada serviço realizado via plataforma. Os 12% (doze por cento) restantes constituem a taxa de intermediação da Zuli, já incluídas nesse percentual as taxas operacionais da plataforma.</p>
-
-            <p><strong>4.2 — Processador de pagamentos</strong><br>
-            Os pagamentos são processados exclusivamente pelo <strong>Mercado Pago</strong> (Mercado Livre de Atividades de Internet S.A., CNPJ 10.573.521/0001-91), por meio da funcionalidade <em>Marketplace com Split de Pagamento</em>. O Profissional concorda com os <a href="https://www.mercadopago.com.br/ajuda/termos-e-politicas_194" target="_blank" style="color:var(--ouro)">Termos de Uso do Mercado Pago</a> como condição para receber repasses pela plataforma.</p>
-
-            <p><strong>4.3 — Vinculação de conta</strong><br>
-            Para receber os repasses, o Profissional deverá vincular sua conta pessoal do Mercado Pago à plataforma Zuli mediante autorização OAuth. A Zuli não armazena credenciais bancárias — toda autenticação ocorre diretamente entre o Profissional e o Mercado Pago.</p>
-
-            <p><strong>4.4 — Taxas do processador</strong><br>
-            A Zuli absorve integralmente as taxas cobradas pelo Mercado Pago, conforme tabela vigente:</p>
-            <ul>
-              <li><strong>Pix:</strong> 0,99% — absorvido pela Zuli · repasse ao Profissional: instantâneo</li>
-              <li><strong>Cartão de crédito 1x:</strong> 3,49% — absorvido pela Zuli · repasse: D+2 úteis</li>
-              <li><strong>Cartão de crédito 2–6x:</strong> 3,99% — absorvido pela Zuli · repasse: D+2 úteis</li>
-              <li><strong>Cartão de débito:</strong> 1,99% — absorvido pela Zuli · repasse: D+1 útil</li>
-            </ul>
-            <p>O Profissional sempre recebe <strong>88% do valor bruto</strong> cobrado ao cliente, independentemente da forma de pagamento utilizada. As taxas do Mercado Pago nunca serão descontadas do valor do Profissional.</p>
-
-            <p><strong>4.5 — Simulação de repasse (valores de referência)</strong></p>
-            <ul>
-              <li>Serviço de R$ 65,00 via Pix → Profissional recebe <strong>R$ 57,20</strong> · Zuli retém R$ 7,80</li>
-              <li>Serviço de R$ 90,00 via cartão 1x → Profissional recebe <strong>R$ 79,20</strong> · Zuli retém R$ 10,80</li>
-              <li>Serviço de R$ 120,00 via Pix → Profissional recebe <strong>R$ 105,60</strong> · Zuli retém R$ 14,40</li>
-            </ul>
-
-            <p><strong>4.6 — Prazo de repasse</strong><br>
-            Os repasses são realizados automaticamente pelo Mercado Pago na conta vinculada do Profissional nos prazos indicados no item 4.4. Em caso de falha técnica no repasse, a Zuli se compromete a resolver em até <strong>2 (dois) dias úteis</strong> mediante acionamento pelo canal de suporte.</p>
-
-            <p><strong>4.7 — Cancelamentos e estornos</strong><br>
-            Em caso de cancelamento com direito a reembolso (conforme Cláusula 5ª dos Termos de Uso), o valor já repassado ao Profissional será descontado do próximo repasse. Se não houver repasse pendente suficiente, o Profissional deverá devolver o valor em até 5 (cinco) dias úteis.</p>
-
-            <p><strong>4.8 — Revisão da taxa</strong><br>
-            A taxa de intermediação de 12% poderá ser revisada mediante comunicação com antecedência mínima de <strong>30 (trinta) dias</strong>, facultando ao Profissional a rescisão sem penalidades caso não concorde com os novos termos.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 5ª — Da Avaliação e Qualidade</h3>
-            <p>Os clientes poderão avaliar os serviços após cada atendimento em escala de 1 a 5 estrelas. O Profissional com avaliação média inferior a <strong>3,0 (três) estrelas</strong> por período consecutivo de 30 dias poderá ter seu cadastro suspenso preventivamente, com direito à defesa em até 5 dias úteis.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 6ª — Da Rescisão</h3>
-            <p>Qualquer das partes poderá rescindir o presente contrato a qualquer momento, mediante comunicação por escrito com antecedência mínima de <strong>15 (quinze) dias</strong>, sem qualquer ônus.</p>
-            <p>A Zuli poderá rescindir imediatamente e sem aviso prévio em caso de: (i) comprovada má conduta com clientes; (ii) prestação de serviços falsos ou fraudulentos; (iii) violação grave das obrigações deste contrato.</p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 7ª — Da Proteção de Dados (LGPD)</h3>
-            <p>Os dados pessoais do Profissional serão tratados pela Zuli exclusivamente para fins de cadastro, operação da plataforma e repasse de pagamentos. O Profissional tem os mesmos direitos garantidos ao Usuário na Política de Privacidade da Zuli. <span class="doc-lei">LGPD Art. 18</span></p>
-          </div>
-
-          <div class="doc-section">
-            <h3>Cláusula 8ª — Do Foro</h3>
-            <p>Fica eleito o foro da comarca de <strong>[Cidade/UF]</strong> para dirimir quaisquer litígios decorrentes deste contrato, com renúncia a qualquer outro foro, por mais privilegiado que seja. Aplicam-se as disposições do Código Civil (Lei 10.406/02) e demais normas vigentes.</p>
-            <p>As partes concordam em tentar resolver eventuais conflitos primeiramente por mediação extrajudicial, antes de recorrer ao Poder Judiciário. <span class="doc-lei">Lei 13.140/15</span></p>
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <div class="accept-row" onclick="toggleCheck('check-cont','btn-cont')">
-            <div class="accept-check" id="check-cont">✓</div>
-            <div class="accept-text">Li, compreendi e aceito todas as cláusulas deste <strong>Contrato de Intermediação</strong> com a Zuli Tecnologia Ltda.</div>
-          </div>
-          <button class="btn-aceitar" id="btn-cont" onclick="fecharModal('contrato')">Assinar contrato</button>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /phone -->
-
-  <div class="nav-btns">
-    <button onclick="goTo('splash')" id="btn-splash" class="active">Splash</button>
-    <button onclick="goTo('home')" id="btn-home">Home</button>
-    <button onclick="goTo('perfil')" id="btn-perfil">Perfil</button>
-    <button onclick="goTo('agenda')" id="btn-agenda">Agendar</button>
-    <button onclick="goTo('confirmacao')" id="btn-confirmacao">✅ Confirmado</button>
-  </div>
-  <div class="scene-label">Navegue pelas telas ou abra os documentos jurídicos</div>
-</div>
-
-<!-- ═══════════════ PAINEL LATERAL ═══════════════ -->
-<div class="docs-panel">
-  <div class="scene-label" style="text-align:center">Documentos Jurídicos Integrados</div>
-
-  <div class="doc-card">
-    <div class="doc-card-tag">📋 Documento 1</div>
-    <h2>Termos de Uso</h2>
-    <p>Regula a relação entre a Zuli e o cliente. Define direitos, responsabilidades, cancelamentos, reembolsos e foro.</p>
-    <div class="leis">
-      <div class="lei-chip">CDC Lei 8.078/90</div>
-      <div class="lei-chip">CC Lei 10.406/02</div>
-      <div class="lei-chip">Marco Civil 12.965/14</div>
-      <div class="lei-chip">ECA Digital 15.211/25</div>
-    </div>
-    <button class="btn-ver" onclick="goTo('splash');abrirModal('termos')">Ver documento completo →</button>
-  </div>
-
-  <div class="doc-card">
-    <div class="doc-card-tag">🔐 Documento 2</div>
-    <h2>Política de Privacidade</h2>
-    <p>Define quais dados são coletados, por que, por quanto tempo, com quem são compartilhados e os direitos do titular.</p>
-    <div class="leis">
-      <div class="lei-chip">LGPD Lei 13.709/18</div>
-      <div class="lei-chip">EC 115/2022</div>
-      <div class="lei-chip">Marco Civil Art. 15</div>
-      <div class="lei-chip">CTN Art. 173</div>
-    </div>
-    <button class="btn-ver" onclick="goTo('splash');abrirModal('privacidade')">Ver documento completo →</button>
-  </div>
-
-  <div class="doc-card">
-    <div class="doc-card-tag">🤝 Documento 3</div>
-    <h2>Contrato com Profissional</h2>
-    <p>Rege a relação entre a Zuli e os profissionais de beleza. Define comissão, repasses, obrigações e rescisão.</p>
-    <div class="leis">
-      <div class="lei-chip">CC Lei 10.406/02</div>
-      <div class="lei-chip">CLT Art. 3º</div>
-      <div class="lei-chip">LGPD Art. 18</div>
-      <div class="lei-chip">Lei Mediação 13.140/15</div>
-    </div>
-    <button class="btn-ver" onclick="goTo('splash');abrirModal('contrato')">Ver documento completo →</button>
-  </div>
-
-  <div class="doc-card" style="background:rgba(61,153,112,0.08);border-color:rgba(61,153,112,0.25);">
-    <div class="doc-card-tag" style="background:rgba(61,153,112,0.2);color:#7DDFAA;">⚠️ Aviso Importante</div>
-    <h2 style="font-size:16px;color:rgba(255,255,255,.8)">Estes documentos são um ponto de partida</h2>
-    <p>Os textos foram elaborados com base na legislação brasileira vigente em março de 2026. <strong style="color:rgba(255,255,255,.7)">Recomenda-se fortemente a revisão por um advogado especialista</strong> antes de colocar o app em produção — especialmente para preencher os campos em colchetes [CNPJ], [Cidade/UF] e ajustar cláusulas ao seu modelo de negócio específico. Custo estimado de revisão: R$ 500–800.</p>
+    <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:20px;line-height:1.7">
+      Ao continuar você aceita os <span style="color:var(--ouro);cursor:pointer">Termos de Uso</span> e a <span style="color:var(--ouro);cursor:pointer">Política de Privacidade</span>
+    </p>
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// Calendário
-const calEl = document.getElementById('calDays2');
-const days = [
-  {d:1},{d:2},{d:3},{d:4},{d:5},{d:6},{d:7},
-  {d:8},{d:9},{d:10},{d:11},{d:12},{d:13},{d:14},
-  {d:15},{d:16},{d:17},{d:18},{d:19},{d:20},{d:21,today:true},
-  {d:22,sel:true},{d:23},{d:24},{d:25},{d:26},{d:27},{d:28},
-  {d:29},{d:30},{d:31},{d:1,other:true},{d:2,other:true},{d:3,other:true},{d:4,other:true}
-];
-days.forEach(d => {
-  const el = document.createElement('div');
-  el.className = 'cal-day'+(d.other?' other':'')+( d.today?' today':'')+( d.sel?' selected':'');
-  el.textContent = d.d;
-  if(!d.other) el.onclick = ()=>{ document.querySelectorAll('#calDays2 .cal-day.selected').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
-  calEl.appendChild(el);
-});
+<!-- ════════════════════════════════════
+     VIEW: CLIENTE
+════════════════════════════════════ -->
+<div class="view" id="view-cliente">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-logo" onclick="irPara('view-cliente','sec-busca')">Z<span>uli</span></div>
+    <div class="navbar-links">
+      <button class="nav-btn" onclick="irPara('view-cliente','sec-busca')">🔍 Buscar</button>
+      <button class="nav-btn" onclick="irPara('view-cliente','sec-agendamentos-cli')">📅 Agendamentos</button>
+      <button class="nav-btn" onclick="irPara('view-cliente','sec-avaliacoes-cli')">⭐ Avaliações</button>
+      <div class="nav-avatar" onclick="irPara('view-cliente','sec-perfil-cli')" id="nav-avatar-cli">👤</div>
+      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
+    </div>
+  </nav>
 
-// Navegação
-function goTo(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  const light=['splash','confirmacao'];
-  document.getElementById('statusBar').className='status-bar'+(light.includes(id)?' light':'');
-  document.querySelectorAll('.nav-btns button').forEach(b=>b.classList.remove('active'));
-  const b=document.getElementById('btn-'+id); if(b)b.classList.add('active');
+  <div class="layout">
+    <!-- SIDEBAR CLIENTE -->
+    <aside class="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <button class="sidebar-item active" onclick="mostrarSecao('cli','sec-busca',this)">
+        <span class="icon">🔍</span> Buscar Profissionais
+      </button>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-agendamentos-cli',this)">
+        <span class="icon">📅</span> Meus Agendamentos
+        <span class="sidebar-badge" id="badge-agend">2</span>
+      </button>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-favoritos',this)">
+        <span class="icon">❤️</span> Favoritos
+      </button>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-avaliacoes-cli',this)">
+        <span class="icon">⭐</span> Minhas Avaliações
+      </button>
+      <div class="sidebar-section">Conta</div>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-perfil-cli',this)">
+        <span class="icon">👤</span> Meu Perfil
+      </button>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-notif-cli',this)">
+        <span class="icon">🔔</span> Notificações
+        <span class="sidebar-badge">3</span>
+      </button>
+      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-config-cli',this)">
+        <span class="icon">⚙️</span> Configurações
+      </button>
+      <div style="margin-top:auto;padding-top:16px">
+        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)">
+          <span class="icon">🚪</span> Sair
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CLIENTE -->
+    <main class="main-content" id="main-cli">
+
+      <!-- BUSCA -->
+      <section id="sec-busca">
+        <div class="section-header">
+          <h1>Encontre seu profissional ✨</h1>
+          <p>Mais de 200 profissionais disponíveis em todo o Brasil</p>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" placeholder="Buscar por nome, serviço ou cidade..." oninput="filtrarProfs(this.value)">
+        </div>
+        <div class="filter-chips" id="filter-chips">
+          <div class="chip active" onclick="filtrarCategoria('todos',this)">Todos</div>
+          <div class="chip" onclick="filtrarCategoria('Unhas',this)">💅 Unhas</div>
+          <div class="chip" onclick="filtrarCategoria('Cabelo',this)">✂️ Cabelo</div>
+          <div class="chip" onclick="filtrarCategoria('Estética',this)">🧖 Estética</div>
+          <div class="chip" onclick="filtrarCategoria('Barbearia',this)">🧔 Barbearia</div>
+          <div class="chip" onclick="filtrarCategoria('Massagem',this)">💆 Massagem</div>
+          <div class="chip" onclick="filtrarCategoria('Maquiagem',this)">💄 Maquiagem</div>
+        </div>
+        <div class="prof-grid" id="prof-grid"></div>
+      </section>
+
+      <!-- AGENDAMENTOS CLIENTE -->
+      <section id="sec-agendamentos-cli" class="hidden">
+        <div class="section-header">
+          <h1>Meus Agendamentos 📅</h1>
+          <p>Acompanhe seus serviços agendados e histórico</p>
+        </div>
+        <div class="filter-chips">
+          <div class="chip active" onclick="filtrarAgend('todos',this)">Todos</div>
+          <div class="chip" onclick="filtrarAgend('confirmado',this)">✅ Confirmados</div>
+          <div class="chip" onclick="filtrarAgend('pendente',this)">⏳ Pendentes</div>
+          <div class="chip" onclick="filtrarAgend('concluido',this)">🏁 Concluídos</div>
+          <div class="chip" onclick="filtrarAgend('cancelado',this)">❌ Cancelados</div>
+        </div>
+        <div id="lista-agend-cli">
+          <!-- Agendamento 1 -->
+          <div class="agend-card">
+            <div class="agend-dot">💅</div>
+            <div class="agend-info">
+              <div class="agend-nome">Manicure Gel — Camila Costa</div>
+              <div class="agend-det">Vila Madalena, SP · 90 min</div>
+              <div style="margin-top:8px"><span class="badge badge-verde">✅ Confirmado</span></div>
+            </div>
+            <div class="agend-time">
+              <div class="agend-date">Amanhã · 14:00</div>
+              <div class="agend-val">R$ 65,00</div>
+              <button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="cancelarAgend()">Cancelar</button>
+            </div>
+          </div>
+          <!-- Agendamento 2 -->
+          <div class="agend-card">
+            <div class="agend-dot">✂️</div>
+            <div class="agend-info">
+              <div class="agend-nome">Corte + Escova — Rafael Melo</div>
+              <div class="agend-det">Pinheiros, SP · 60 min</div>
+              <div style="margin-top:8px"><span class="badge badge-amarelo">⏳ Aguardando pagamento</span></div>
+            </div>
+            <div class="agend-time">
+              <div class="agend-date">Sex, 28 · 10:30</div>
+              <div class="agend-val">R$ 90,00</div>
+              <button class="btn btn-gold btn-xs" style="margin-top:8px">Pagar</button>
+            </div>
+          </div>
+          <!-- Agendamento 3 -->
+          <div class="agend-card">
+            <div class="agend-dot" style="background:var(--creme2)">🧖</div>
+            <div class="agend-info">
+              <div class="agend-nome">Limpeza de Pele — Julia Pires</div>
+              <div class="agend-det">Moema, SP · 60 min</div>
+              <div style="margin-top:8px"><span class="badge badge-cinza">🏁 Concluído</span></div>
+            </div>
+            <div class="agend-time">
+              <div class="agend-date">15 mar · 15:00</div>
+              <div class="agend-val">R$ 120,00</div>
+              <button class="btn btn-outline btn-xs" style="margin-top:8px" onclick="abrirAvaliar()">Avaliar ⭐</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAVORITOS -->
+      <section id="sec-favoritos" class="hidden">
+        <div class="section-header">
+          <h1>Favoritos ❤️</h1>
+          <p>Seus profissionais salvos para agendar rapidamente</p>
+        </div>
+        <div class="prof-grid" id="grid-favoritos"></div>
+      </section>
+
+      <!-- AVALIAÇÕES CLIENTE -->
+      <section id="sec-avaliacoes-cli" class="hidden">
+        <div class="section-header">
+          <h1>Minhas Avaliações ⭐</h1>
+          <p>Avaliações que você deixou para os profissionais</p>
+        </div>
+        <div class="aval-card">
+          <div class="aval-header">
+            <div class="aval-nome">Julia Pires — Limpeza de Pele</div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <div class="aval-texto">"Atendimento incrível, muito profissional e pontual. Minha pele ficou perfeita!"</div>
+          <div class="aval-servico">15 de março de 2026</div>
+        </div>
+        <div class="aval-card">
+          <div class="aval-header">
+            <div class="aval-nome">Camila Costa — Manicure Gel</div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <div class="aval-texto">"Adorei o resultado! Durou mais de 3 semanas sem lascar."</div>
+          <div class="aval-servico">5 de março de 2026</div>
+        </div>
+      </section>
+
+      <!-- PERFIL CLIENTE -->
+      <section id="sec-perfil-cli" class="hidden">
+        <div class="section-header">
+          <h1>Meu Perfil 👤</h1>
+        </div>
+        <div class="perfil-header-card">
+          <div class="perfil-big-avatar">👩</div>
+          <div class="perfil-header-info">
+            <h2 id="perfil-nome-cli">Ana Lima</h2>
+            <p id="perfil-email-cli">ana@email.com</p>
+            <p style="color:rgba(255,255,255,.4);font-size:12px;margin-top:4px">Cliente desde janeiro 2026</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Editar informações</h3>
+          <div class="input-group"><label class="input-label">Nome completo</label><input class="input" value="Ana Lima"></div>
+          <div class="input-group"><label class="input-label">E-mail</label><input class="input" value="ana@email.com" type="email"></div>
+          <div class="input-group"><label class="input-label">Telefone</label><input class="input" value="(11) 99999-0000"></div>
+          <div class="input-group"><label class="input-label">Cidade</label><input class="input" value="São Paulo, SP"></div>
+          <button class="btn btn-primary">Salvar alterações</button>
+        </div>
+      </section>
+
+      <!-- NOTIFICAÇÕES CLIENTE -->
+      <section id="sec-notif-cli" class="hidden">
+        <div class="section-header">
+          <h1>Notificações 🔔</h1>
+        </div>
+        <div class="card">
+          <div class="notif-item notif-unread">
+            <div class="notif-icon" style="background:var(--verde-cl)">✅</div>
+            <div class="notif-body">
+              <div class="notif-title">Agendamento confirmado!</div>
+              <div class="notif-text">Sua manicure gel com Camila Costa foi confirmada para amanhã às 14:00.</div>
+              <div class="notif-time">Há 2 horas</div>
+            </div>
+          </div>
+          <div class="notif-item notif-unread">
+            <div class="notif-icon" style="background:var(--azul-cl)">💳</div>
+            <div class="notif-body">
+              <div class="notif-title">Pagamento recebido</div>
+              <div class="notif-text">Recebemos seu pagamento de R$ 65,00 via Pix.</div>
+              <div class="notif-time">Há 2 horas</div>
+            </div>
+          </div>
+          <div class="notif-item notif-unread">
+            <div class="notif-icon" style="background:#FEF9EC">⭐</div>
+            <div class="notif-body">
+              <div class="notif-title">Avalie seu atendimento</div>
+              <div class="notif-text">Como foi a limpeza de pele com Julia Pires? Deixe sua avaliação!</div>
+              <div class="notif-time">Há 7 dias</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon" style="background:var(--rosa2,#F5D9DB)">💅</div>
+            <div class="notif-body">
+              <div class="notif-title">Nova profissional disponível!</div>
+              <div class="notif-text">Marina Silva, especialista em unhas artísticas, acabou de entrar na Zuli.</div>
+              <div class="notif-time">Há 2 dias</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONFIGURAÇÕES CLIENTE -->
+      <section id="sec-config-cli" class="hidden">
+        <div class="section-header">
+          <h1>Configurações ⚙️</h1>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Notificações</h3>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>E-mail de confirmação</h4><p>Receber e-mail ao confirmar agendamento</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>Lembrete 24h antes</h4><p>Lembrete do agendamento no dia anterior</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>Promoções e novidades</h4><p>Ofertas e novos profissionais na sua área</p></div><div class="toggle" onclick="toggleSwitch(this)"></div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Segurança</h3>
+          <div class="input-group"><label class="input-label">Senha atual</label><input class="input" type="password" placeholder="••••••••"></div>
+          <div class="input-group"><label class="input-label">Nova senha</label><input class="input" type="password" placeholder="••••••••"></div>
+          <button class="btn btn-primary">Alterar senha</button>
+        </div>
+        <div class="card" style="margin-top:16px;border-color:#FAAAA3">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:8px;color:var(--vermelho)">Zona de perigo</h3>
+          <p style="font-size:13px;color:var(--cinza);margin-bottom:16px">Essas ações são irreversíveis.</p>
+          <button class="btn btn-danger">Excluir minha conta</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     VIEW: PROFISSIONAL
+════════════════════════════════════ -->
+<div class="view" id="view-profissional">
+  <nav class="navbar">
+    <div class="navbar-logo">Z<span>uli</span> <span style="font-size:12px;color:rgba(255,255,255,.4);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400">Profissional</span></div>
+    <div class="navbar-links">
+      <div class="nav-avatar" id="nav-avatar-prof">💅</div>
+      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">Painel</div>
+      <button class="sidebar-item active" onclick="mostrarSecao('prof','sec-dash-prof',this)"><span class="icon">📊</span> Dashboard</button>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-agenda-prof',this)"><span class="icon">📅</span> Minha Agenda<span class="sidebar-badge">3</span></button>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-servicos-prof',this)"><span class="icon">✂️</span> Meus Serviços</button>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-ganhos-prof',this)"><span class="icon">💰</span> Ganhos</button>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-aval-prof',this)"><span class="icon">⭐</span> Avaliações</button>
+      <div class="sidebar-section">Conta</div>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-perfil-prof',this)"><span class="icon">👤</span> Meu Perfil</button>
+      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-notif-prof',this)"><span class="icon">🔔</span> Notificações<span class="sidebar-badge">2</span></button>
+      <div style="margin-top:auto;padding-top:16px">
+        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)"><span class="icon">🚪</span> Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-prof">
+
+      <!-- DASHBOARD PROF -->
+      <section id="sec-dash-prof">
+        <div class="section-header">
+          <h1>Olá, Camila! 👋</h1>
+          <p>Aqui está um resumo do seu desempenho este mês</p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--verde-cl)">💰</div>
+            <div class="stat-val">R$ 2.840</div>
+            <div class="stat-label">Ganhos este mês</div>
+            <div class="stat-change text-verde">↑ 18% vs mês anterior</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--azul-cl)">📅</div>
+            <div class="stat-val">43</div>
+            <div class="stat-label">Agendamentos</div>
+            <div class="stat-change text-verde">↑ 12% vs mês anterior</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#FEF9EC">⭐</div>
+            <div class="stat-val">4.9</div>
+            <div class="stat-label">Avaliação média</div>
+            <div class="stat-change" style="color:var(--cinza)">→ Estável</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--rosa2,#F5D9DB)">👥</div>
+            <div class="stat-val">38</div>
+            <div class="stat-label">Clientes únicos</div>
+            <div class="stat-change text-verde">↑ 8 novos este mês</div>
+          </div>
+        </div>
+
+        <!-- Gráfico de ganhos -->
+        <div class="card" style="margin-bottom:24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h3 style="font-family:'Fraunces',serif;font-size:18px">Ganhos por semana</h3>
+            <span class="badge badge-verde">Março 2026</span>
+          </div>
+          <div class="ganhos-bars" id="ganhos-chart">
+            <div class="bar-item"><div class="bar-fill" style="height:60%"></div><div class="bar-label">S1</div></div>
+            <div class="bar-item"><div class="bar-fill" style="height:75%"></div><div class="bar-label">S2</div></div>
+            <div class="bar-item"><div class="bar-fill" style="height:50%"></div><div class="bar-label">S3</div></div>
+            <div class="bar-item"><div class="bar-fill" style="height:90%"></div><div class="bar-label">S4</div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--cinza)">
+            <span>R$ 480</span><span>R$ 620</span><span>R$ 520</span><span>R$ 780</span>
+          </div>
+        </div>
+
+        <!-- Próximos agendamentos -->
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Próximos agendamentos</div>
+            <button class="btn btn-outline btn-sm" onclick="mostrarSecao('prof','sec-agenda-prof',document.querySelector('#main-prof .sidebar-item:nth-child(2))'))">Ver todos</button>
+          </div>
+          <table>
+            <thead><tr><th>Cliente</th><th>Serviço</th><th>Data/Hora</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div style="font-weight:600">Ana Lima</div></td><td>Manicure Gel</td><td>Amanhã · 14:00</td><td style="color:var(--ouro);font-weight:700">R$ 65</td><td><span class="badge badge-verde">Confirmado</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
+              <tr><td><div style="font-weight:600">Bruna M.</div></td><td>Pedicure</td><td>Sex · 10:00</td><td style="color:var(--ouro);font-weight:700">R$ 55</td><td><span class="badge badge-amarelo">Aguardando</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
+              <tr><td><div style="font-weight:600">Carla S.</div></td><td>Mani + Pedi</td><td>Sáb · 14:30</td><td style="color:var(--ouro);font-weight:700">R$ 95</td><td><span class="badge badge-verde">Confirmado</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AGENDA PROF -->
+      <section id="sec-agenda-prof" class="hidden">
+        <div class="section-header">
+          <h1>Minha Agenda 📅</h1>
+          <p>Gerencie seus horários e agendamentos</p>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:24px">
+          <button class="btn btn-primary">+ Bloquear horário</button>
+          <button class="btn btn-outline">Definir disponibilidade</button>
+        </div>
+        <div class="agend-card">
+          <div class="agend-dot">💅</div>
+          <div class="agend-info"><div class="agend-nome">Ana Lima — Manicure Gel</div><div class="agend-det">(11) 99999-0000 · 90 min</div><div style="margin-top:8px"><span class="badge badge-verde">✅ Confirmado</span></div></div>
+          <div class="agend-time"><div class="agend-date">Amanhã · 14:00</div><div class="agend-val">R$ 57,20 (líquido)</div><div style="display:flex;gap:6px;margin-top:8px"><button class="btn btn-gold btn-xs">✅ Concluir</button><button class="btn btn-danger btn-xs">Cancelar</button></div></div>
+        </div>
+        <div class="agend-card">
+          <div class="agend-dot">💅</div>
+          <div class="agend-info"><div class="agend-nome">Bruna M. — Pedicure</div><div class="agend-det">(11) 98888-1111 · 60 min</div><div style="margin-top:8px"><span class="badge badge-amarelo">⏳ Aguardando pagamento</span></div></div>
+          <div class="agend-time"><div class="agend-date">Sex · 10:00</div><div class="agend-val">R$ 48,40 (líquido)</div></div>
+        </div>
+      </section>
+
+      <!-- SERVIÇOS PROF -->
+      <section id="sec-servicos-prof" class="hidden">
+        <div class="section-header">
+          <h1>Meus Serviços ✂️</h1>
+          <p>Gerencie os serviços que você oferece</p>
+        </div>
+        <button class="btn btn-primary" style="margin-bottom:24px" onclick="abrirModal('modal-add-servico')">+ Adicionar serviço</button>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Serviço</th><th>Duração</th><th>Preço</th><th>Agendamentos</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">Manicure simples</td><td>45 min</td><td style="color:var(--ouro);font-weight:700">R$ 45</td><td>128</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
+              <tr><td style="font-weight:600">Manicure gel</td><td>90 min</td><td style="color:var(--ouro);font-weight:700">R$ 65</td><td>94</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
+              <tr><td style="font-weight:600">Pedicure completa</td><td>60 min</td><td style="color:var(--ouro);font-weight:700">R$ 55</td><td>76</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
+              <tr><td style="font-weight:600">Mani + Pedi combo</td><td>120 min</td><td style="color:var(--ouro);font-weight:700">R$ 95</td><td>52</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- GANHOS PROF -->
+      <section id="sec-ganhos-prof" class="hidden">
+        <div class="section-header">
+          <h1>Ganhos 💰</h1>
+          <p>Acompanhe seus repasses e histórico financeiro</p>
+        </div>
+        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 2.840</div><div class="stat-label">Este mês</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📊</div><div class="stat-val">R$ 28.400</div><div class="stat-label">Total acumulado</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:#FEF9EC">⏳</div><div class="stat-val">R$ 171,60</div><div class="stat-label">A receber (D+2)</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><div class="table-title">Histórico de repasses</div></div>
+          <table>
+            <thead><tr><th>Data</th><th>Serviço</th><th>Valor bruto</th><th>Taxa Zuli (12%)</th><th>Você recebeu</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>22/03/2026</td><td>Manicure Gel</td><td>R$ 65,00</td><td style="color:var(--cinza)">R$ 7,80</td><td style="color:var(--verde);font-weight:700">R$ 57,20</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>21/03/2026</td><td>Pedicure</td><td>R$ 55,00</td><td style="color:var(--cinza)">R$ 6,60</td><td style="color:var(--verde);font-weight:700">R$ 48,40</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>20/03/2026</td><td>Mani + Pedi</td><td>R$ 95,00</td><td style="color:var(--cinza)">R$ 11,40</td><td style="color:var(--verde);font-weight:700">R$ 83,60</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>23/03/2026</td><td>Manicure simples</td><td>R$ 45,00</td><td style="color:var(--cinza)">R$ 5,40</td><td style="color:var(--amarelo,#F39C12);font-weight:700">R$ 39,60</td><td><span class="badge badge-amarelo">Pendente D+2</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AVALIAÇÕES PROF -->
+      <section id="sec-aval-prof" class="hidden">
+        <div class="section-header">
+          <h1>Avaliações ⭐</h1>
+          <p>O que os clientes falam sobre você</p>
+        </div>
+        <div class="card" style="margin-bottom:24px;display:flex;gap:32px;align-items:center">
+          <div style="text-align:center">
+            <div style="font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--escuro)">4.9</div>
+            <div class="stars" style="font-size:20px">★★★★★</div>
+            <div style="font-size:13px;color:var(--cinza);margin-top:4px">847 avaliações</div>
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;width:16px">5★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:85%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">720</span></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;width:16px">4★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:12%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">98</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;width:16px">3★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:3%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">29</span></div>
+          </div>
+        </div>
+        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Ana Lima</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Camila é incrível! Manicure perfeita, super caprichosa. Já é a terceira vez que vou e sempre fico satisfeita."</div><div class="aval-servico">Manicure Gel · 22 mar 2026</div></div>
+        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Fernanda S.</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Melhor nail designer que já fui. Durou 3 semanas sem lascar nada!"</div><div class="aval-servico">Manicure Gel · 15 mar 2026</div></div>
+        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Bruna M.</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Pontual, atenciosa e o resultado ficou lindo. Super recomendo!"</div><div class="aval-servico">Pedicure · 10 mar 2026</div></div>
+      </section>
+
+      <!-- PERFIL PROF -->
+      <section id="sec-perfil-prof" class="hidden">
+        <div class="section-header"><h1>Meu Perfil 👤</h1></div>
+        <div class="perfil-header-card">
+          <div class="perfil-big-avatar">💅</div>
+          <div class="perfil-header-info">
+            <h2>Camila Costa</h2>
+            <p>Nail Designer · Vila Madalena, SP</p>
+            <p style="color:rgba(255,255,255,.4);font-size:12px;margin-top:4px">⭐ 4.9 · 847 avaliações · 3 anos na Zuli</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Editar perfil público</h3>
+          <div class="input-group"><label class="input-label">Nome profissional</label><input class="input" value="Camila Costa"></div>
+          <div class="input-group"><label class="input-label">Especialidade</label><input class="input" value="Nail Designer"></div>
+          <div class="input-group"><label class="input-label">Cidade</label><input class="input" value="Vila Madalena, São Paulo"></div>
+          <div class="input-group"><label class="input-label">Mini bio (aparece no seu perfil público)</label><textarea class="input" rows="3" style="resize:none">Nail designer apaixonada pela arte nas unhas. 3 anos de experiência, especialista em gel e nail art.</textarea></div>
+          <button class="btn btn-primary">Salvar perfil</button>
+        </div>
+      </section>
+
+      <!-- NOTIFICAÇÕES PROF -->
+      <section id="sec-notif-prof" class="hidden">
+        <div class="section-header"><h1>Notificações 🔔</h1></div>
+        <div class="card">
+          <div class="notif-item notif-unread"><div class="notif-icon" style="background:var(--verde-cl)">📅</div><div class="notif-body"><div class="notif-title">Novo agendamento!</div><div class="notif-text">Ana Lima agendou Manicure Gel para amanhã às 14:00. Valor: R$ 65,00.</div><div class="notif-time">Há 2 horas</div></div></div>
+          <div class="notif-item notif-unread"><div class="notif-icon" style="background:#FEF9EC">⭐</div><div class="notif-body"><div class="notif-title">Nova avaliação 5 estrelas!</div><div class="notif-text">Fernanda S. deixou uma avaliação incrível para você.</div><div class="notif-time">Há 1 dia</div></div></div>
+          <div class="notif-item"><div class="notif-icon" style="background:var(--azul-cl)">💰</div><div class="notif-body"><div class="notif-title">Repasse recebido</div><div class="notif-text">R$ 57,20 foi depositado na sua conta Mercado Pago.</div><div class="notif-time">Há 2 dias</div></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     VIEW: ADMIN
+════════════════════════════════════ -->
+<div class="view" id="view-admin">
+  <nav class="navbar">
+    <div class="navbar-logo">Z<span>uli</span> <span style="font-size:12px;color:var(--ouro);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700">Admin</span></div>
+    <div class="navbar-links">
+      <span style="font-size:12px;color:rgba(255,255,255,.4)">Painel Administrativo</span>
+      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">Visão Geral</div>
+      <button class="sidebar-item active" onclick="mostrarSecao('adm','sec-dash-adm',this)"><span class="icon">📊</span> Dashboard</button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-usuarios-adm',this)"><span class="icon">👥</span> Usuários<span class="sidebar-badge">1.2k</span></button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-profs-adm',this)"><span class="icon">💅</span> Profissionais</button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-agend-adm',this)"><span class="icon">📅</span> Agendamentos</button>
+      <div class="sidebar-section">Financeiro</div>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-fin-adm',this)"><span class="icon">💰</span> Receitas</button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-repasses-adm',this)"><span class="icon">🏦</span> Repasses</button>
+      <div class="sidebar-section">Plataforma</div>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-aval-adm',this)"><span class="icon">⭐</span> Avaliações</button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-notif-adm',this)"><span class="icon">📣</span> Notificações</button>
+      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-config-adm',this)"><span class="icon">⚙️</span> Configurações</button>
+      <div style="margin-top:auto;padding-top:16px">
+        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)"><span class="icon">🚪</span> Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-adm">
+
+      <!-- DASHBOARD ADMIN -->
+      <section id="sec-dash-adm">
+        <div class="section-header">
+          <h1>Dashboard 📊</h1>
+          <p>Visão geral da plataforma Zuli — Março 2026</p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 48.240</div><div class="stat-label">Receita do mês</div><div class="stat-change text-verde">↑ 22% vs fevereiro</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📅</div><div class="stat-val">4.020</div><div class="stat-label">Agendamentos</div><div class="stat-change text-verde">↑ 15% vs fevereiro</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--roxo-cl)">👥</div><div class="stat-val">1.284</div><div class="stat-label">Clientes ativos</div><div class="stat-change text-verde">↑ 184 novos</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:#FEF9EC">💅</div><div class="stat-val">89</div><div class="stat-label">Profissionais ativos</div><div class="stat-change text-verde">↑ 12 novos</div></div>
+        </div>
+
+        <!-- Tabela de últimas transações -->
+        <div class="table-wrap" style="margin-bottom:24px">
+          <div class="table-header">
+            <div class="table-title">Últimas transações</div>
+            <span class="badge badge-verde">🟢 Ao vivo</span>
+          </div>
+          <table>
+            <thead><tr><th>Cliente</th><th>Profissional</th><th>Serviço</th><th>Valor</th><th>Comissão Zuli</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Ana Lima</td><td>Camila Costa</td><td>Manicure Gel</td><td style="font-weight:600">R$ 65,00</td><td style="color:var(--verde);font-weight:700">R$ 7,80</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>Bruna M.</td><td>Rafael Melo</td><td>Corte + Escova</td><td style="font-weight:600">R$ 90,00</td><td style="color:var(--amarelo,#F39C12);font-weight:700">R$ 10,80</td><td><span class="badge badge-amarelo">Pendente</span></td></tr>
+              <tr><td>Carla S.</td><td>Julia Pires</td><td>Limpeza de Pele</td><td style="font-weight:600">R$ 120,00</td><td style="color:var(--verde);font-weight:700">R$ 14,40</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>Diego R.</td><td>Paulo B.</td><td>Corte Masculino</td><td style="font-weight:600">R$ 50,00</td><td style="color:var(--verde);font-weight:700">R$ 6,00</td><td><span class="badge badge-verde">Pago</span></td></tr>
+              <tr><td>Elena P.</td><td>Camila Costa</td><td>Pedicure</td><td style="font-weight:600">R$ 55,00</td><td style="color:var(--vermelho);font-weight:700">R$ 6,60</td><td><span class="badge badge-vermelho">Cancelado</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- USUÁRIOS ADMIN -->
+      <section id="sec-usuarios-adm" class="hidden">
+        <div class="section-header"><h1>Usuários 👥</h1><p>Gerenciar todos os clientes cadastrados</p></div>
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" placeholder="Buscar usuário por nome ou e-mail..."></div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">1.284 clientes cadastrados</div>
+            <button class="btn btn-primary btn-sm">Exportar CSV</button>
+          </div>
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Cadastro</th><th>Agendamentos</th><th>Total gasto</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">Ana Lima</td><td>ana@email.com</td><td>Jan 2026</td><td>12</td><td>R$ 680</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
+              <tr><td style="font-weight:600">Bruna M.</td><td>bruna@email.com</td><td>Fev 2026</td><td>5</td><td>R$ 290</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
+              <tr><td style="font-weight:600">Carlos F.</td><td>carlos@email.com</td><td>Mar 2026</td><td>2</td><td>R$ 110</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
+              <tr><td style="font-weight:600">Diana S.</td><td>diana@email.com</td><td>Jan 2026</td><td>0</td><td>R$ 0</td><td><span class="badge badge-cinza">Inativo</span></td><td><button class="btn btn-danger btn-xs">Bloquear</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROFISSIONAIS ADMIN -->
+      <section id="sec-profs-adm" class="hidden">
+        <div class="section-header"><h1>Profissionais 💅</h1><p>Gerenciar todos os profissionais da plataforma</p></div>
+        <div style="display:flex;gap:12px;margin-bottom:24px">
+          <button class="btn btn-primary btn-sm" onclick="abrirModal('modal-add-prof')">+ Adicionar profissional</button>
+          <button class="btn btn-outline btn-sm">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><div class="table-title">89 profissionais cadastrados</div><span class="badge badge-verde">12 novos este mês</span></div>
+          <table>
+            <thead><tr><th>Profissional</th><th>Categoria</th><th>Cidade</th><th>Avaliação</th><th>Agend. mês</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div style="font-weight:600">Camila Costa</div></td><td>Nail Designer</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★★</span> 4.9</td><td>43</td><td><span class="badge badge-verde">Ativo</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-xs">Ver</button><button class="btn btn-danger btn-xs">Suspender</button></div></td></tr>
+              <tr><td><div style="font-weight:600">Rafael Melo</div></td><td>Cabeleireiro</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★☆</span> 4.8</td><td>38</td><td><span class="badge badge-verde">Ativo</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-xs">Ver</button><button class="btn btn-danger btn-xs">Suspender</button></div></td></tr>
+              <tr><td><div style="font-weight:600">Julia Pires</div></td><td>Esteticista</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★★</span> 5.0</td><td>29</td><td><span class="badge badge-amarelo">Pendente</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-gold btn-xs">Aprovar</button><button class="btn btn-danger btn-xs">Recusar</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AGENDAMENTOS ADMIN -->
+      <section id="sec-agend-adm" class="hidden">
+        <div class="section-header"><h1>Agendamentos 📅</h1><p>Visão geral de todos os agendamentos</p></div>
+        <div class="filter-chips">
+          <div class="chip active">Todos</div>
+          <div class="chip">✅ Confirmados</div>
+          <div class="chip">⏳ Pendentes</div>
+          <div class="chip">❌ Cancelados</div>
+          <div class="chip">🏁 Concluídos</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Cliente</th><th>Profissional</th><th>Serviço</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--cinza)">#4021</td><td>Ana Lima</td><td>Camila Costa</td><td>Manicure Gel</td><td>23/03 14:00</td><td style="font-weight:600">R$ 65</td><td><span class="badge badge-verde">Confirmado</span></td></tr>
+              <tr><td style="color:var(--cinza)">#4020</td><td>Bruna M.</td><td>Rafael Melo</td><td>Corte+Escova</td><td>25/03 10:30</td><td style="font-weight:600">R$ 90</td><td><span class="badge badge-amarelo">Pendente</span></td></tr>
+              <tr><td style="color:var(--cinza)">#4019</td><td>Carla S.</td><td>Julia Pires</td><td>Limpeza Pele</td><td>22/03 15:00</td><td style="font-weight:600">R$ 120</td><td><span class="badge badge-cinza">Concluído</span></td></tr>
+              <tr><td style="color:var(--cinza)">#4018</td><td>Diego R.</td><td>Paulo B.</td><td>Corte Masc.</td><td>21/03 11:00</td><td style="font-weight:600">R$ 50</td><td><span class="badge badge-cinza">Concluído</span></td></tr>
+              <tr><td style="color:var(--cinza)">#4017</td><td>Elena P.</td><td>Camila Costa</td><td>Pedicure</td><td>20/03 16:00</td><td style="font-weight:600">R$ 55</td><td><span class="badge badge-vermelho">Cancelado</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- FINANCEIRO ADMIN -->
+      <section id="sec-fin-adm" class="hidden">
+        <div class="section-header"><h1>Receitas 💰</h1><p>Acompanhe as comissões recebidas pela Zuli</p></div>
+        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 48.240</div><div class="stat-label">Receita total do mês</div><div class="stat-change text-verde">↑ 22%</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📈</div><div class="stat-val">R$ 12,00</div><div class="stat-label">Ticket médio de comissão</div><div class="stat-change text-verde">↑ R$ 0,80</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--roxo-cl)">🏦</div><div class="stat-val">R$ 3.840</div><div class="stat-label">A receber este mês</div><div class="stat-change" style="color:var(--cinza)">Repasses pendentes</div></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:16px">Receita por categoria</h3>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>💅 Unhas</span><span style="font-weight:600">R$ 18.400 (38%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:38%;background:var(--ouro);border-radius:100px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>✂️ Cabelo</span><span style="font-weight:600">R$ 14.200 (29%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:29%;background:var(--ouro);border-radius:100px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🧖 Estética</span><span style="font-weight:600">R$ 9.600 (20%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:20%;background:var(--ouro);border-radius:100px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🧔 Barbearia</span><span style="font-weight:600">R$ 6.040 (13%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:13%;background:var(--ouro);border-radius:100px"></div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPASSES ADMIN -->
+      <section id="sec-repasses-adm" class="hidden">
+        <div class="section-header"><h1>Repasses 🏦</h1><p>Controle os pagamentos aos profissionais</p></div>
+        <div class="table-wrap">
+          <div class="table-header"><div class="table-title">Repasses pendentes</div><button class="btn btn-gold btn-sm">Processar todos</button></div>
+          <table>
+            <thead><tr><th>Profissional</th><th>Agendamentos</th><th>Valor bruto</th><th>Comissão Zuli</th><th>A repassar</th><th>Prazo</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">Camila Costa</td><td>43</td><td>R$ 3.228</td><td style="color:var(--verde)">R$ 387,36</td><td style="color:var(--ouro);font-weight:700">R$ 2.840,64</td><td>24/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
+              <tr><td style="font-weight:600">Rafael Melo</td><td>38</td><td>R$ 2.850</td><td style="color:var(--verde)">R$ 342,00</td><td style="color:var(--ouro);font-weight:700">R$ 2.508,00</td><td>24/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
+              <tr><td style="font-weight:600">Julia Pires</td><td>29</td><td>R$ 3.480</td><td style="color:var(--verde)">R$ 417,60</td><td style="color:var(--ouro);font-weight:700">R$ 3.062,40</td><td>25/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AVALIAÇÕES ADMIN -->
+      <section id="sec-aval-adm" class="hidden">
+        <div class="section-header"><h1>Avaliações ⭐</h1><p>Moderar avaliações da plataforma</p></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Profissional</th><th>Nota</th><th>Comentário</th><th>Data</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Ana Lima</td><td>Camila Costa</td><td><span class="stars" style="font-size:12px">★★★★★</span></td><td style="max-width:200px;font-size:13px">"Incrível, super recomendo!"</td><td>22/03</td><td><button class="btn btn-danger btn-xs">Remover</button></td></tr>
+              <tr><td>Bruna M.</td><td>Rafael Melo</td><td><span class="stars" style="font-size:12px">★★★☆☆</span></td><td style="max-width:200px;font-size:13px">"Bom mas atrasou 20min"</td><td>20/03</td><td><button class="btn btn-danger btn-xs">Remover</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- NOTIFICAÇÕES ADMIN -->
+      <section id="sec-notif-adm" class="hidden">
+        <div class="section-header"><h1>Enviar Notificações 📣</h1><p>Comunique-se com usuários e profissionais</p></div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Nova notificação em massa</h3>
+          <div class="input-group"><label class="input-label">Destinatários</label><select class="input"><option>Todos os clientes</option><option>Todos os profissionais</option><option>Todos os usuários</option><option>Clientes inativos (30+ dias)</option></select></div>
+          <div class="input-group"><label class="input-label">Título</label><input class="input" placeholder="Ex: Nova funcionalidade disponível!"></div>
+          <div class="input-group"><label class="input-label">Mensagem</label><textarea class="input" rows="4" style="resize:none" placeholder="Escreva a mensagem aqui..."></textarea></div>
+          <div class="input-group"><label class="input-label">Canal</label>
+            <div style="display:flex;gap:12px;margin-top:8px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked> <span style="font-size:14px">📧 E-mail</span></label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> <span style="font-size:14px">📱 Push</span></label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> <span style="font-size:14px">📲 SMS</span></label>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="alert('Notificação enviada com sucesso! ✅')">📣 Enviar notificação</button>
+        </div>
+      </section>
+
+      <!-- CONFIG ADMIN -->
+      <section id="sec-config-adm" class="hidden">
+        <div class="section-header"><h1>Configurações ⚙️</h1></div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Configurações da plataforma</h3>
+          <div class="input-group"><label class="input-label">Taxa de comissão (%)</label><input class="input" value="12" type="number"></div>
+          <div class="input-group"><label class="input-label">Prazo de repasse (dias úteis)</label><input class="input" value="2" type="number"></div>
+          <div class="input-group"><label class="input-label">Taxa de cancelamento tardio (%)</label><input class="input" value="50" type="number"></div>
+          <button class="btn btn-primary">Salvar configurações</button>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Status da plataforma</h3>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>Novos cadastros de clientes</h4><p>Permitir que novos clientes se cadastrem</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>Novos cadastros de profissionais</h4><p>Permitir que novos profissionais entrem</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
+          <div class="toggle-wrap"><div class="toggle-info"><h4>Modo manutenção</h4><p>Exibir página de manutenção para usuários</p></div><div class="toggle" onclick="toggleSwitch(this)"></div></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════════ MODAIS ════════ -->
+
+<!-- Modal avaliar -->
+<div class="modal-overlay" id="modal-avaliar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Avaliar atendimento ⭐</div>
+      <button class="modal-close" onclick="fecharModal('modal-avaliar')">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--cinza);margin-bottom:20px">Julia Pires — Limpeza de Pele · 15/03/2026</p>
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:48px;letter-spacing:8px;cursor:pointer" id="star-display">★★★★★</div>
+      <div style="font-size:13px;color:var(--cinza);margin-top:8px">Toque nas estrelas para avaliar</div>
+    </div>
+    <div class="input-group"><label class="input-label">Comentário (opcional)</label><textarea class="input" rows="3" style="resize:none" placeholder="Como foi o atendimento?"></textarea></div>
+    <button class="btn btn-gold btn-full" onclick="fecharModal('modal-avaliar');alert('Avaliação enviada! Obrigada ✅')">Enviar avaliação</button>
+  </div>
+</div>
+
+<!-- Modal adicionar serviço -->
+<div class="modal-overlay" id="modal-add-servico">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Novo serviço ✂️</div>
+      <button class="modal-close" onclick="fecharModal('modal-add-servico')">✕</button>
+    </div>
+    <div class="input-group"><label class="input-label">Nome do serviço</label><input class="input" placeholder="Ex: Manicure artística"></div>
+    <div class="input-group"><label class="input-label">Duração (minutos)</label><input class="input" type="number" placeholder="60"></div>
+    <div class="input-group"><label class="input-label">Preço (R$)</label><input class="input" type="number" placeholder="65.00"></div>
+    <div class="input-group"><label class="input-label">Descrição</label><textarea class="input" rows="2" style="resize:none" placeholder="Descreva o serviço..."></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-add-servico');alert('Serviço adicionado! ✅')">Adicionar serviço</button>
+  </div>
+</div>
+
+<!-- Modal adicionar profissional (admin) -->
+<div class="modal-overlay" id="modal-add-prof">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Adicionar profissional 💅</div>
+      <button class="modal-close" onclick="fecharModal('modal-add-prof')">✕</button>
+    </div>
+    <div class="input-group"><label class="input-label">Nome completo</label><input class="input" placeholder="Nome do profissional"></div>
+    <div class="input-group"><label class="input-label">E-mail</label><input class="input" type="email" placeholder="email@exemplo.com"></div>
+    <div class="input-group"><label class="input-label">Categoria</label><select class="input"><option>💅 Nail Designer</option><option>✂️ Cabeleireiro(a)</option><option>🧖 Esteticista</option><option>🧔 Barbeiro</option><option>💆 Massoterapeuta</option><option>💄 Maquiador(a)</option></select></div>
+    <div class="input-group"><label class="input-label">Cidade</label><input class="input" placeholder="São Paulo, SP"></div>
+    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-add-prof');alert('Profissional adicionado! ✅')">Adicionar profissional</button>
+  </div>
+</div>
+
+<!-- Modal agendar -->
+<div class="modal-overlay" id="modal-agendar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Agendar serviço 📅</div>
+      <button class="modal-close" onclick="fecharModal('modal-agendar')">✕</button>
+    </div>
+    <div id="modal-prof-info" style="display:flex;gap:16px;align-items:center;background:var(--creme);border-radius:14px;padding:16px;margin-bottom:20px">
+      <div class="prof-avatar pa-rosa" id="modal-prof-emoji">💅</div>
+      <div><div style="font-weight:700;font-size:16px" id="modal-prof-nome">Camila Costa</div><div style="font-size:13px;color:var(--cinza)" id="modal-prof-role">Nail Designer</div></div>
+    </div>
+    <div class="input-group"><label class="input-label">Serviço</label><select class="input" id="modal-servico"><option>Manicure simples — R$ 45 · 45min</option><option>Manicure gel — R$ 65 · 90min</option><option>Pedicure — R$ 55 · 60min</option><option>Mani + Pedi — R$ 95 · 120min</option></select></div>
+    <div class="input-group"><label class="input-label">Data</label><input class="input" type="date" id="modal-data"></div>
+    <div class="input-group"><label class="input-label">Horário</label><select class="input"><option>10:00</option><option>11:00</option><option>14:00</option><option>15:30</option><option>16:00</option><option>18:30</option></select></div>
+    <div style="background:var(--creme);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--cinza)">Serviço</span><span style="font-weight:600">Manicure gel</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--cinza)">Duração</span><span>90 minutos</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--cinza)">Total</span><span style="font-weight:700;color:var(--ouro);font-size:16px">R$ 65,00</span></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-agendar');alert('Agendamento confirmado! Você receberá um e-mail de confirmação 📧')">Confirmar agendamento →</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+// DADOS DE DEMONSTRAÇÃO
+// ═══════════════════════════════
+const profissionaisMock = [
+  {nome:'Camila Costa',role:'Nail Designer',cat:'Unhas',emoji:'💅',cor:'pa-rosa',nota:4.9,preco:45,cidade:'Vila Madalena, SP',top:true},
+  {nome:'Rafael Melo',role:'Cabeleireiro',cat:'Cabelo',emoji:'✂️',cor:'pa-verde',nota:4.8,preco:70,cidade:'Pinheiros, SP',top:false},
+  {nome:'Julia Pires',role:'Esteticista',cat:'Estética',emoji:'🧖',cor:'pa-ouro',nota:5.0,preco:90,cidade:'Moema, SP',top:true},
+  {nome:'Paulo Barros',role:'Barbeiro',cat:'Barbearia',emoji:'🧔',cor:'pa-roxo',nota:4.7,preco:35,cidade:'Itaim Bibi, SP',top:false},
+  {nome:'Marina Silva',role:'Nail Artist',cat:'Unhas',emoji:'💅',cor:'pa-rosa',nota:4.9,preco:80,cidade:'Jardins, SP',top:true},
+  {nome:'Fernanda Lima',role:'Massagista',cat:'Massagem',emoji:'💆',cor:'pa-verde',nota:4.8,preco:100,cidade:'Brooklin, SP',top:false},
+  {nome:'Luana Costa',role:'Maquiadora',cat:'Maquiagem',emoji:'💄',cor:'pa-ouro',nota:5.0,preco:120,cidade:'Santana, SP',top:true},
+  {nome:'André Santos',role:'Barbeiro',cat:'Barbearia',emoji:'🧔',cor:'pa-roxo',nota:4.6,preco:40,cidade:'Lapa, SP',top:false},
+]
+
+let catAtual = 'todos'
+let tabAtual = 'entrar'
+
+// ═══════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════
+function irPara(viewId, secId) {
+  mostrarView(viewId)
+  if(secId) {
+    const sec = document.getElementById(secId)
+    if(sec) sec.scrollIntoView({behavior:'smooth'})
+  }
 }
 
-// Modais
-function abrirModal(id){
-  document.getElementById('modal-'+id).classList.add('open');
-}
-function fecharModal(id){
-  document.getElementById('modal-'+id).classList.remove('open');
+function mostrarView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  window.scrollTo(0,0)
 }
 
-// Checkbox aceite
-function toggleCheck(checkId, btnId){
-  const check = document.getElementById(checkId);
-  const btn = document.getElementById(btnId);
-  check.classList.toggle('checked');
-  btn.classList.toggle('ativo', check.classList.contains('checked'));
+function mostrarSecao(prefixo, secId, btn) {
+  const main = document.getElementById('main-'+prefixo)
+  main.querySelectorAll('section').forEach(s => s.classList.add('hidden'))
+  document.getElementById(secId).classList.remove('hidden')
+  if(btn) {
+    const sidebar = btn.closest('aside')
+    sidebar.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
 }
 
-// Fechar modal clicando fora
-document.querySelectorAll('.modal-overlay').forEach(m=>{
-  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('open'); });
-});
-
-// Horários
-function selH(el){
-  document.querySelectorAll('.horario-chip.selected').forEach(x=>x.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-// ══════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════
-
-let abaAtual = 'entrar'
-
-function trocarAba(aba) {
-  abaAtual = aba
-  const isEntrar = aba === 'entrar'
-  const btnEntrar    = document.getElementById('aba-entrar')
-  const btnCadastrar = document.getElementById('aba-cadastrar')
-  btnEntrar.style.background    = isEntrar ? 'white' : 'transparent'
-  btnEntrar.style.color         = isEntrar ? 'var(--escuro)' : 'rgba(255,255,255,0.5)'
-  btnCadastrar.style.background = !isEntrar ? 'white' : 'transparent'
-  btnCadastrar.style.color      = !isEntrar ? 'var(--escuro)' : 'rgba(255,255,255,0.5)'
-  document.getElementById('campo-nome').style.display = isEntrar ? 'none' : 'block'
+// ═══════════════════════════════
+// LOGIN / AUTH
+// ═══════════════════════════════
+function trocarTab(t) {
+  tabAtual = t
+  const isEntrar = t === 'entrar'
+  document.getElementById('tab-entrar').classList.toggle('active', isEntrar)
+  document.getElementById('tab-cadastrar').classList.toggle('active', !isEntrar)
+  document.getElementById('campo-nome-login').classList.toggle('hidden', isEntrar)
+  document.getElementById('campo-perfil-login').classList.toggle('hidden', isEntrar)
   document.getElementById('btn-auth').textContent = isEntrar ? 'Entrar' : 'Criar conta'
-  limparMsgs()
+  limparAlertas()
 }
 
-function mostrarErro(msg) {
-  const el = document.getElementById('msg-erro')
+function mostrarErroLogin(msg) {
+  const el = document.getElementById('login-erro')
   el.textContent = '⚠️ ' + msg
-  el.style.display = 'block'
-  document.getElementById('msg-ok').style.display = 'none'
+  el.classList.add('show')
+  document.getElementById('login-ok').classList.remove('show')
 }
 
-function mostrarOk(msg) {
-  const el = document.getElementById('msg-ok')
+function mostrarOkLogin(msg) {
+  const el = document.getElementById('login-ok')
   el.textContent = '✅ ' + msg
-  el.style.display = 'block'
-  document.getElementById('msg-erro').style.display = 'none'
+  el.classList.add('show')
+  document.getElementById('login-erro').classList.remove('show')
 }
 
-function limparMsgs() {
-  document.getElementById('msg-erro').style.display = 'none'
-  document.getElementById('msg-ok').style.display   = 'none'
+function limparAlertas() {
+  document.getElementById('login-erro').classList.remove('show')
+  document.getElementById('login-ok').classList.remove('show')
 }
 
 async function autenticar() {
   const email = document.getElementById('inp-email').value.trim()
   const senha = document.getElementById('inp-senha').value.trim()
   const btn   = document.getElementById('btn-auth')
-
-  if (!email || !senha)        { mostrarErro('Preencha e-mail e senha!'); return }
-  if (!email.includes('@'))    { mostrarErro('E-mail inválido!'); return }
-  if (senha.length < 6)        { mostrarErro('Senha mínimo 6 caracteres!'); return }
-
-  btn.textContent   = '⏳ Aguarde...'
-  btn.style.opacity = '0.6'
-  limparMsgs()
-
-  if (abaAtual === 'entrar') {
-    const { error } = await db.auth.signInWithPassword({ email, password: senha })
-    if (error) {
-      mostrarErro('E-mail ou senha incorretos!')
+  if (!email || !senha) { mostrarErroLogin('Preencha e-mail e senha!'); return }
+  if (!email.includes('@')) { mostrarErroLogin('E-mail inválido!'); return }
+  if (senha.length < 6)  { mostrarErroLogin('Senha mínimo 6 caracteres!'); return }
+  btn.textContent = '⏳ Aguarde...'
+  btn.style.opacity = '0.7'
+  limparAlertas()
+  try {
+    if (tabAtual === 'entrar') {
+      const { error } = await db.auth.signInWithPassword({ email, password: senha })
+      if (error) { mostrarErroLogin('E-mail ou senha incorretos!') }
+      else { mostrarOkLogin('Bem-vindo! Redirecionando...'); setTimeout(() => entrarNoApp('cliente'), 800) }
     } else {
-      mostrarOk('Bem-vindo ao Zuli!')
-      setTimeout(() => goTo('home'), 800)
+      const nome   = document.getElementById('inp-nome').value.trim()
+      const perfil = document.getElementById('inp-perfil').value
+      if (!nome) { mostrarErroLogin('Digite seu nome!'); btn.textContent='Criar conta'; btn.style.opacity='1'; return }
+      const { error } = await db.auth.signUp({ email, password: senha, options: { data: { nome, perfil } } })
+      if (error) { mostrarErroLogin(error.message) }
+      else { mostrarOkLogin('Conta criada! Confirme seu e-mail 📧') }
     }
-  } else {
-    const nome = document.getElementById('inp-nome').value.trim()
-    if (!nome) { mostrarErro('Digite seu nome!'); btn.textContent='Criar conta'; btn.style.opacity='1'; return }
-    const { error } = await db.auth.signUp({
-      email, password: senha,
-      options: { data: { nome } }
-    })
-    if (error) {
-      mostrarErro(error.message)
-    } else {
-      mostrarOk('Conta criada! Confirme seu e-mail 📧')
-    }
-  }
-
-  btn.textContent   = abaAtual === 'entrar' ? 'Entrar' : 'Criar conta'
+  } catch(e) { mostrarErroLogin('Erro de conexão. Tente novamente.') }
+  btn.textContent = tabAtual === 'entrar' ? 'Entrar' : 'Criar conta'
   btn.style.opacity = '1'
 }
 
 async function loginGoogle() {
-  const { error } = await db.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href }
-  })
-  if (error) mostrarErro('Erro ao entrar com Google!')
+  try {
+    const { error } = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
+    if (error) mostrarErroLogin('Erro ao entrar com Google!')
+  } catch(e) { mostrarErroLogin('Google login indisponível no momento.') }
+}
+
+function demoLogin(tipo) {
+  perfilAtual = tipo
+  entrarNoApp(tipo)
+}
+
+function entrarNoApp(tipo) {
+  renderizarProfs()
+  renderizarFavoritos()
+  mostrarView('view-' + tipo)
 }
 
 async function sair() {
-  await db.auth.signOut()
-  goTo('login')
+  try { await db.auth.signOut() } catch(e) {}
+  mostrarView('view-login')
 }
 
-// ══════════════════════════════════════
-// PAGAMENTO MERCADO PAGO
-// ══════════════════════════════════════
-
-async function iniciarPagamento() {
-  const btn = document.getElementById('btn-pagar')
-  btn.textContent   = '⏳ Gerando Pix...'
-  btn.style.opacity = '0.6'
-
+// Verificar sessão
+window.addEventListener('DOMContentLoaded', () => {
   try {
-    const { data: { user } } = await db.auth.getUser()
-    const valor = 65.00
-
-    // Salva agendamento no banco
-    const { data: ag, error: erroAg } = await db.from('agendamentos').insert({
-      cliente_id:   user ? user.id : null,
-      servico:      'Manicure gel',
-      data:         '2026-03-22',
-      horario:      '14:00:00',
-      valor:        valor,
-      status:       'aguardando_pagamento'
-    }).select().single()
-
-    if (erroAg) throw erroAg
-
-    // Cria pagamento Pix no Mercado Pago
-    const resp = await fetch('https://api.mercadopago.com/v1/payments', {
-      method: 'POST',
-      headers: {
-        'Authorization':    'Bearer ' + MP_TOKEN,
-        'Content-Type':     'application/json',
-        'X-Idempotency-Key': ag.id
-      },
-      body: JSON.stringify({
-        transaction_amount: valor,
-        description:        'Agendamento Zuli — Manicure gel',
-        payment_method_id:  'pix',
-        payer: { email: user ? user.email : 'cliente@zuli.com' }
-      })
+    db.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        const perfil = session.user?.user_metadata?.perfil || 'cliente'
+        entrarNoApp(perfil)
+      }
     })
+  } catch(e) { console.log('Supabase não configurado — use demo') }
+  renderizarProfs()
+  renderizarFavoritos()
+  // Data mínima no modal de agendamento
+  const hoje = new Date().toISOString().split('T')[0]
+  const dataInput = document.getElementById('modal-data')
+  if(dataInput) { dataInput.min = hoje; dataInput.value = hoje }
+})
 
-    const pag = await resp.json()
-
-    if (pag.status === 'pending') {
-      // Salva pagamento no banco
-      await db.from('pagamentos').insert({
-        agendamento_id:    ag.id,
-        valor_total:       valor,
-        taxa_zuli:         valor * 0.12,
-        valor_profissional: valor * 0.88,
-        metodo:            'pix',
-        status:            'pendente',
-        mp_payment_id:     pag.id.toString()
-      })
-
-      // Atualiza status do agendamento
-      await db.from('agendamentos').update({ status: 'pix_gerado' }).eq('id', ag.id)
-
-      // Exibe QR Code
-      const qrB64  = pag.point_of_interaction.transaction_data.qr_code_base64
-      const qrText = pag.point_of_interaction.transaction_data.qr_code
-      mostrarQRCode(qrB64, qrText, valor)
-
-    } else {
-      alert('Erro ao gerar Pix. Tente novamente.')
-    }
-
-  } catch(e) {
-    console.error(e)
-    alert('Erro de conexão. Verifique suas chaves e tente novamente.')
-  }
-
-  btn.textContent   = 'Confirmar e pagar →'
-  btn.style.opacity = '1'
-}
-
-function mostrarQRCode(qrB64, qrText, valor) {
-  const overlay = document.createElement('div')
-  overlay.style.cssText = `
-    position:fixed; inset:0; background:rgba(0,0,0,0.92);
-    display:flex; align-items:center; justify-content:center;
-    z-index:9999; padding:24px; font-family:'Plus Jakarta Sans',sans-serif;
-  `
-  overlay.innerHTML = `
-    <div style="background:white; border-radius:28px; padding:32px 28px; text-align:center; max-width:320px; width:100%;">
-      <div style="font-size:36px; margin-bottom:10px;">📱</div>
-      <div style="font-weight:800; font-size:20px; color:#1C1612; margin-bottom:4px;">Pague com Pix</div>
-      <div style="font-size:13px; color:#9A8E85; margin-bottom:6px;">Valor: <strong style="color:#1C1612">R$ ${valor.toFixed(2).replace('.',',')}</strong></div>
-      <div style="font-size:12px; color:#9A8E85; margin-bottom:20px;">Escaneie o QR Code ou copie o código</div>
-      <img src="data:image/png;base64,${qrB64}" style="width:190px; height:190px; margin-bottom:16px; border-radius:12px; border:1px solid #EAE4DC;">
-      <div onclick="navigator.clipboard.writeText('${qrText}'); this.innerHTML='✅ Copiado!'"
-        style="background:#F2EDE4; border-radius:10px; padding:12px; font-size:11px; color:#4A4038; word-break:break-all; margin-bottom:16px; cursor:pointer; line-height:1.5;">
-        ${qrText.substring(0,50)}...<br><span style="color:#C9A96E; font-weight:600;">Toque para copiar</span>
+// ═══════════════════════════════
+// PROFISSIONAIS
+// ═══════════════════════════════
+function renderizarProfs(lista) {
+  const grid = document.getElementById('prof-grid')
+  if (!grid) return
+  const profs = lista || profissionaisMock
+  grid.innerHTML = profs.map(p => `
+    <div class="prof-card-full" onclick="abrirAgendar('${p.nome}','${p.role}','${p.emoji}')">
+      <div class="prof-card-cover ${p.cor}">
+        ${p.emoji}
+        ${p.top ? '<div class="prof-card-badge">⭐ Top</div>' : ''}
       </div>
-      <div style="font-size:12px; color:#9A8E85; margin-bottom:20px;">⏱ Expira em 30 minutos</div>
-      <button onclick="this.closest('[style]').remove(); goTo('confirmacao')"
-        style="width:100%; background:#1C1612; color:#C9A96E; font-weight:700; font-size:15px; padding:16px; border-radius:16px; border:none; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
-        Já paguei ✅
-      </button>
-      <button onclick="this.closest('[style]').remove()"
-        style="width:100%; background:transparent; color:#9A8E85; font-size:13px; padding:10px; border:none; cursor:pointer; margin-top:4px; font-family:'Plus Jakarta Sans',sans-serif;">
-        Cancelar
-      </button>
+      <div class="prof-card-body">
+        <div class="prof-card-name">${p.nome}</div>
+        <div class="prof-card-role">${p.role} · ${p.cidade}</div>
+        <div class="prof-card-footer">
+          <div class="prof-card-rating">⭐ ${p.nota}</div>
+          <div class="prof-card-price">A partir de R$ ${p.preco}</div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:12px">Agendar</button>
+      </div>
     </div>
-  `
-  document.body.appendChild(overlay)
+  `).join('')
 }
+
+function renderizarFavoritos() {
+  const grid = document.getElementById('grid-favoritos')
+  if (!grid) return
+  const favs = profissionaisMock.filter(p => p.top)
+  grid.innerHTML = favs.map(p => `
+    <div class="prof-card-full" onclick="abrirAgendar('${p.nome}','${p.role}','${p.emoji}')">
+      <div class="prof-card-cover ${p.cor}">${p.emoji}<div class="prof-card-badge">❤️ Favorito</div></div>
+      <div class="prof-card-body">
+        <div class="prof-card-name">${p.nome}</div>
+        <div class="prof-card-role">${p.role} · ${p.cidade}</div>
+        <div class="prof-card-footer"><div class="prof-card-rating">⭐ ${p.nota}</div><div class="prof-card-price">A partir de R$ ${p.preco}</div></div>
+        <button class="btn btn-primary btn-full" style="margin-top:12px">Agendar</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+function filtrarProfs(busca) {
+  const filtrados = profissionaisMock.filter(p =>
+    p.nome.toLowerCase().includes(busca.toLowerCase()) ||
+    p.role.toLowerCase().includes(busca.toLowerCase()) ||
+    p.cidade.toLowerCase().includes(busca.toLowerCase()) ||
+    p.cat.toLowerCase().includes(busca.toLowerCase())
+  )
+  renderizarProfs(filtrados)
+}
+
+function filtrarCategoria(cat, el) {
+  catAtual = cat
+  document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('active'))
+  el.classList.add('active')
+  const filtrados = cat === 'todos' ? profissionaisMock : profissionaisMock.filter(p => p.cat === cat)
+  renderizarProfs(filtrados)
+}
+
+function filtrarAgend(status, el) {
+  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'))
+  el.classList.add('active')
+}
+
+// ═══════════════════════════════
+// MODAIS
+// ═══════════════════════════════
+function abrirModal(id) { document.getElementById(id).classList.add('open') }
+function fecharModal(id) { document.getElementById(id).classList.remove('open') }
+
+function abrirAgendar(nome, role, emoji) {
+  document.getElementById('modal-prof-nome').textContent = nome
+  document.getElementById('modal-prof-role').textContent = role
+  document.getElementById('modal-prof-emoji').textContent = emoji
+  abrirModal('modal-agendar')
+}
+
+function abrirAvaliar() { abrirModal('modal-avaliar') }
+function cancelarAgend() { if(confirm('Cancelar este agendamento?')) alert('Agendamento cancelado. Reembolso em até 5 dias úteis.') }
+
+// Fechar modal clicando fora
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open') })
+})
+
+// ═══════════════════════════════
+// UTILITÁRIOS
+// ═══════════════════════════════
+function toggleSwitch(el) { el.classList.toggle('on') }
 </script>
 </body>
 </html>
