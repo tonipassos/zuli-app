@@ -1,1360 +1,244 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zuli — Beleza na palma da mão</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// ═══════════════════════════════════════════
-// 🔧 SUAS CHAVES — SUBSTITUA AQUI
-// ═══════════════════════════════════════════
-const SUPABASE_URL = 'COLE_SUA_URL_AQUI'
-const SUPABASE_KEY = 'COLE_SUA_ANON_KEY_AQUI'
-const MP_TOKEN     = 'COLE_SEU_MP_TOKEN_AQUI'
-// ═══════════════════════════════════════════
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-let usuarioAtual = null
-let perfilAtual  = 'cliente' // 'cliente' | 'profissional' | 'admin'
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Zuli - Agendamento Profissional</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --ouro:#C9A96E;--ouro2:#E8C98A;--escuro:#1C1612;--escuro2:#2E2720;
-  --creme:#FAF7F2;--creme2:#F2EDE4;--cinza:#9A8E85;--borda:#EAE4DC;
-  --verde:#27AE78;--verde-cl:#E8F8F1;--vermelho:#E74C3C;--verm-cl:#FDECEA;
-  --azul:#2C7BE5;--azul-cl:#EBF3FF;--roxo:#8B5CF6;--roxo-cl:#F3EFFE;
-}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--creme);color:var(--escuro);min-height:100vh}
 
-/* ── UTILITÁRIOS ── */
-.hidden{display:none!important}
-.flex{display:flex}.flex-col{flex-direction:column}.gap-4{gap:16px}.gap-2{gap:8px}
-.items-center{align-items:center}.justify-between{justify-content:space-between}
-.w-full{width:100%}.text-center{text-align:center}
-.font-bold{font-weight:700}.font-semibold{font-weight:600}
-.text-sm{font-size:13px}.text-xs{font-size:11px}.text-lg{font-size:18px}.text-xl{font-size:22px}
-.text-cinza{color:var(--cinza)}.text-ouro{color:var(--ouro)}.text-verde{color:var(--verde)}
-.text-vermelho{color:var(--vermelho)}
-.rounded{border-radius:12px}.rounded-lg{border-radius:16px}.rounded-xl{border-radius:20px}.rounded-full{border-radius:100px}
-.bg-white{background:white}.bg-creme{background:var(--creme)}.bg-escuro{background:var(--escuro)}
-.p-4{padding:16px}.p-6{padding:24px}.px-4{padding:0 16px}.py-2{padding:8px 0}
-.mb-2{margin-bottom:8px}.mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mt-4{margin-top:16px}
-.shadow{box-shadow:0 4px 20px rgba(0,0,0,.08)}.shadow-lg{box-shadow:0 8px 32px rgba(0,0,0,.12)}
-.border{border:1.5px solid var(--borda)}
-.cursor{cursor:pointer}
-.transition{transition:all .2s}
-
-/* ── VIEWS ── */
-.view{display:none;min-height:100vh;flex-direction:column}
-.view.active{display:flex}
-
-/* ── NAVBAR ── */
-.navbar{
-  background:var(--escuro);padding:0 32px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 20px rgba(0,0,0,.3);
-}
-.navbar-logo{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--creme);cursor:pointer}
-.navbar-logo span{color:var(--ouro)}
-.navbar-links{display:flex;gap:8px;align-items:center}
-.nav-btn{
-  background:transparent;border:none;color:rgba(255,255,255,.6);
-  font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;font-size:14px;
-  padding:8px 16px;border-radius:100px;cursor:pointer;transition:all .2s;
-}
-.nav-btn:hover{color:white;background:rgba(255,255,255,.1)}
-.nav-btn.active{color:var(--ouro);font-weight:700}
-.nav-btn-primary{
-  background:linear-gradient(135deg,var(--ouro),var(--ouro2));color:var(--escuro);
-  font-weight:700;border:none;padding:10px 20px;border-radius:100px;cursor:pointer;
-  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;transition:transform .2s;
-}
-.nav-btn-primary:hover{transform:scale(1.03)}
-.nav-avatar{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--ouro),var(--rosa,#E8B4B8));
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;cursor:pointer;border:2px solid rgba(255,255,255,.2);
+body{
+    font-family: Arial;
+    margin:0;
+    background:#f2f2f2;
 }
 
-/* ── SIDEBAR ── */
-.layout{display:flex;flex:1}
-.sidebar{
-  width:260px;background:white;border-right:1px solid var(--borda);
-  padding:24px 16px;display:flex;flex-direction:column;gap:4px;
-  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;
+header{
+    background:#111;
+    color:white;
+    padding:15px;
+    text-align:center;
 }
-.sidebar-section{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza);padding:16px 12px 8px}
-.sidebar-item{
-  display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;
-  cursor:pointer;transition:all .2s;font-size:14px;font-weight:500;color:var(--cinza);border:none;background:none;width:100%;
+
+nav{
+    background:#333;
+    padding:10px;
+    text-align:center;
 }
-.sidebar-item:hover{background:var(--creme2);color:var(--escuro)}
-.sidebar-item.active{background:var(--escuro);color:var(--ouro);font-weight:700}
-.sidebar-item .icon{font-size:18px;width:24px;text-align:center}
-.sidebar-badge{margin-left:auto;background:var(--vermelho);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
-.main-content{flex:1;padding:32px;overflow-y:auto;max-height:calc(100vh - 64px)}
 
-/* ── CARDS ── */
-.card{background:white;border-radius:20px;padding:24px;border:1px solid var(--borda);transition:transform .2s,box-shadow .2s}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.08)}
-.stat-card{background:white;border-radius:20px;padding:24px;border:1px solid var(--borda)}
-.stat-card .stat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
-.stat-card .stat-val{font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--escuro);margin-bottom:4px}
-.stat-card .stat-label{font-size:13px;color:var(--cinza)}
-.stat-card .stat-change{font-size:12px;font-weight:600;margin-top:8px}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-
-/* ── TABELA ── */
-.table-wrap{background:white;border-radius:20px;border:1px solid var(--borda);overflow:hidden}
-.table-header{padding:20px 24px;border-bottom:1px solid var(--borda);display:flex;justify-content:space-between;align-items:center}
-.table-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700}
-table{width:100%;border-collapse:collapse}
-th{padding:12px 20px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza);background:var(--creme);border-bottom:1px solid var(--borda)}
-td{padding:14px 20px;font-size:14px;border-bottom:1px solid var(--borda)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--creme)}
-
-/* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700}
-.badge-verde{background:var(--verde-cl);color:#1D6A3A}
-.badge-amarelo{background:#FEF9EC;color:#A05A00}
-.badge-vermelho{background:var(--verm-cl);color:var(--vermelho)}
-.badge-azul{background:var(--azul-cl);color:var(--azul)}
-.badge-roxo{background:var(--roxo-cl);color:var(--roxo)}
-.badge-cinza{background:var(--creme2);color:var(--cinza)}
-
-/* ── BOTÕES ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;border:none}
-.btn-primary{background:linear-gradient(135deg,var(--escuro),var(--escuro2));color:var(--ouro)}
-.btn-primary:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.2)}
-.btn-gold{background:linear-gradient(135deg,var(--ouro),var(--ouro2));color:var(--escuro)}
-.btn-gold:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(201,169,110,.35)}
-.btn-outline{background:transparent;border:1.5px solid var(--borda);color:var(--escuro)}
-.btn-outline:hover{border-color:var(--ouro);color:var(--ouro)}
-.btn-danger{background:var(--verm-cl);color:var(--vermelho);border:1.5px solid #FAAAA3}
-.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
-.btn-xs{padding:5px 12px;font-size:12px;border-radius:8px}
-.btn-full{width:100%;padding:16px}
-
-/* ── INPUTS ── */
-.input-group{margin-bottom:16px}
-.input-label{font-size:13px;font-weight:600;color:var(--escuro);margin-bottom:6px;display:block}
-.input{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--borda);background:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--escuro);outline:none;transition:border-color .2s}
-.input:focus{border-color:var(--ouro)}
-.input-dark{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:white}
-.input-dark::placeholder{color:rgba(255,255,255,.4)}
-.input-dark:focus{border-color:var(--ouro)}
-select.input{cursor:pointer}
-
-/* ── ALERTAS ── */
-.alert{padding:14px 18px;border-radius:12px;font-size:13px;line-height:1.6;margin-bottom:16px;display:none}
-.alert.show{display:flex;gap:10px;align-items:flex-start}
-.alert-erro{background:var(--verm-cl);border:1px solid #FAAAA3;color:#922B21}
-.alert-ok{background:var(--verde-cl);border:1px solid #A9DFBF;color:#1D6A3A}
-.alert-info{background:var(--azul-cl);border:1px solid #B8D4F5;color:#1A4A8A}
-
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
-.modal-overlay.open{display:flex}
-.modal{background:white;border-radius:24px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:modalIn .3s ease}
-@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
-.modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
-.modal-close{width:32px;height:32px;border-radius:50%;background:var(--creme2);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-
-/* ── AVATAR ── */
-.prof-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.pa-rosa{background:linear-gradient(135deg,#F5D9DB,#E8B4B8)}
-.pa-verde{background:linear-gradient(135deg,#D9EAD9,#B4D4B8)}
-.pa-ouro{background:linear-gradient(135deg,#F5EAD9,#E8C9A0)}
-.pa-roxo{background:linear-gradient(135deg,#E8D9F5,#C9B4E8)}
-
-/* ── STARS ── */
-.stars{color:#F39C12;font-size:14px;letter-spacing:2px}
-
-/* ── SEARCH BAR ── */
-.search-wrap{position:relative;margin-bottom:24px}
-.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--cinza)}
-.search-input{width:100%;padding:14px 16px 14px 44px;border-radius:14px;border:1.5px solid var(--borda);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
-.search-input:focus{border-color:var(--ouro)}
-
-/* ── FILTROS ── */
-.filter-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.chip{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--borda);background:white;color:var(--cinza);transition:all .2s}
-.chip:hover{border-color:var(--ouro);color:var(--ouro)}
-.chip.active{background:var(--escuro);color:var(--ouro);border-color:var(--escuro)}
-
-/* ── PROF CARD ── */
-.prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
-.prof-card-full{background:white;border-radius:20px;border:1px solid var(--borda);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
-.prof-card-full:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1)}
-.prof-card-cover{height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative}
-.prof-card-body{padding:16px 20px}
-.prof-card-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px}
-.prof-card-role{font-size:13px;color:var(--cinza);margin-bottom:10px}
-.prof-card-footer{display:flex;justify-content:space-between;align-items:center}
-.prof-card-price{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ouro)}
-.prof-card-rating{font-size:13px;font-weight:600}
-.prof-card-badge{position:absolute;top:10px;right:10px;background:var(--escuro);color:var(--ouro);font-size:10px;font-weight:700;padding:4px 10px;border-radius:100px}
-
-/* ── AGENDAMENTO CARD ── */
-.agend-card{background:white;border-radius:16px;border:1px solid var(--borda);padding:18px 20px;display:flex;gap:16px;align-items:center;margin-bottom:12px;transition:box-shadow .2s}
-.agend-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
-.agend-dot{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--ouro),var(--ouro2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.agend-info{flex:1}
-.agend-nome{font-weight:700;font-size:15px;margin-bottom:3px}
-.agend-det{font-size:13px;color:var(--cinza)}
-.agend-time{text-align:right}
-.agend-date{font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--ouro)}
-.agend-val{font-size:13px;color:var(--cinza);margin-top:2px}
-
-/* ── PERFIL HEADER ── */
-.perfil-header-card{background:var(--escuro);border-radius:24px;padding:32px;display:flex;gap:24px;align-items:center;margin-bottom:24px;position:relative;overflow:hidden}
-.perfil-header-card::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,.15) 0%,transparent 70%)}
-.perfil-big-avatar{width:80px;height:80px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;background:linear-gradient(135deg,var(--ouro),var(--ouro2));flex-shrink:0;border:3px solid rgba(255,255,255,.15)}
-.perfil-header-info h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--creme);margin-bottom:4px}
-.perfil-header-info p{font-size:14px;color:rgba(255,255,255,.5)}
-
-/* ── GANHOS CHART ── */
-.ganhos-bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin:16px 0}
-.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
-.bar-fill{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(to top,var(--ouro),var(--ouro2));min-height:4px;transition:height .6s ease}
-.bar-label{font-size:10px;color:var(--cinza);font-weight:600}
-
-/* ── NOTIF ── */
-.notif-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--borda)}
-.notif-item:last-child{border-bottom:none}
-.notif-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.notif-body{flex:1}
-.notif-title{font-size:14px;font-weight:600;margin-bottom:3px}
-.notif-text{font-size:13px;color:var(--cinza);line-height:1.5}
-.notif-time{font-size:11px;color:var(--cinza);margin-top:4px}
-.notif-unread .notif-title::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ouro);margin-left:8px;vertical-align:middle}
-
-/* ── LOGIN PAGE ── */
-#view-login{background:var(--escuro);align-items:center;justify-content:center;padding:20px}
-.login-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:40px 36px;width:100%;max-width:420px;backdrop-filter:blur(10px)}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo .wm{font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--creme);line-height:1}
-.login-logo .wm span{color:var(--ouro)}
-.login-logo .tg{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:6px}
-.login-tabs{display:flex;background:rgba(255,255,255,.08);border-radius:12px;padding:3px;margin-bottom:24px}
-.login-tab{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.45)}
-.login-tab.active{background:white;color:var(--escuro);font-weight:700}
-
-/* ── HEADER DE SEÇÃO ── */
-.section-header{margin-bottom:28px}
-.section-header h1{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--escuro);margin-bottom:6px}
-.section-header p{font-size:14px;color:var(--cinza)}
-
-/* ── AVALIAÇÕES ── */
-.aval-card{background:white;border-radius:16px;padding:18px 20px;border:1px solid var(--borda);margin-bottom:12px}
-.aval-header{display:flex;justify-content:space-between;margin-bottom:8px}
-.aval-nome{font-weight:700;font-size:14px}
-.aval-texto{font-size:13px;color:var(--cinza);line-height:1.6}
-.aval-servico{font-size:11px;color:var(--cinza);margin-top:6px}
-
-/* ── TOGGLE ── */
-.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--borda)}
-.toggle-wrap:last-child{border-bottom:none}
-.toggle-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
-.toggle-info p{font-size:12px;color:var(--cinza)}
-.toggle{width:44px;height:24px;border-radius:100px;background:var(--borda);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle.on{background:var(--verde)}
-.toggle::after{content:'';width:18px;height:18px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
-.toggle.on::after{transform:translateX(20px)}
-
-/* ── RESPONSIVE ── */
-@media(max-width:768px){
-  .sidebar{display:none}
-  .stat-grid{grid-template-columns:1fr 1fr}
-  .main-content{padding:20px}
-  .prof-grid{grid-template-columns:1fr}
-  .navbar{padding:0 16px}
+nav button{
+    margin:5px;
+    padding:10px;
+    border:none;
+    background:#00aaff;
+    color:white;
+    cursor:pointer;
 }
+
+.container{
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    margin:10px 0;
+    border-radius:8px;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button{
+    padding:10px;
+    background:#28a745;
+    color:white;
+    border:none;
+}
+
+footer{
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:10px;
+    margin-top:20px;
+}
+
 </style>
+
 </head>
 <body>
 
-<!-- ════════════════════════════════════
-     VIEW: LOGIN
-════════════════════════════════════ -->
-<div class="view active" id="view-login" style="background:var(--escuro)">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(201,169,110,.15) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(232,180,184,.08) 0%,transparent 60%)"></div>
-
-  <div class="login-box" style="position:relative;z-index:2">
-    <div class="login-logo">
-      <div class="wm">Z<span>uli</span></div>
-      <div class="tg">Agende · Brilhe · Repita</div>
-    </div>
-
-    <div class="login-tabs">
-      <button class="login-tab active" id="tab-entrar" onclick="trocarTab('entrar')">Entrar</button>
-      <button class="login-tab" id="tab-cadastrar" onclick="trocarTab('cadastrar')">Cadastrar</button>
-    </div>
-
-    <div id="campo-nome-login" class="input-group hidden">
-      <label class="input-label" style="color:rgba(255,255,255,.7)">Nome completo</label>
-      <input class="input input-dark" id="inp-nome" type="text" placeholder="Seu nome completo">
-    </div>
-    <div class="input-group">
-      <label class="input-label" style="color:rgba(255,255,255,.7)">E-mail</label>
-      <input class="input input-dark" id="inp-email" type="email" placeholder="seu@email.com">
-    </div>
-    <div class="input-group">
-      <label class="input-label" style="color:rgba(255,255,255,.7)">Senha</label>
-      <input class="input input-dark" id="inp-senha" type="password" placeholder="Mínimo 6 caracteres">
-    </div>
-
-    <div id="campo-perfil-login" class="input-group hidden">
-      <label class="input-label" style="color:rgba(255,255,255,.7)">Tipo de conta</label>
-      <select class="input input-dark" id="inp-perfil">
-        <option value="cliente">👤 Sou cliente — quero agendar serviços</option>
-        <option value="profissional">💅 Sou profissional — quero oferecer serviços</option>
-      </select>
-    </div>
-
-    <div class="alert alert-erro" id="login-erro">⚠️ </div>
-    <div class="alert alert-ok" id="login-ok">✅ </div>
-
-    <button class="btn btn-gold btn-full" id="btn-auth" onclick="autenticar()">Entrar</button>
-
-    <div style="display:flex;align-items:center;gap:12px;margin:16px 0">
-      <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
-      <span style="font-size:12px;color:rgba(255,255,255,.3)">ou</span>
-      <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
-    </div>
-
-    <button class="btn btn-outline btn-full" style="border-color:rgba(255,255,255,.15);color:white" onclick="loginGoogle()">
-      <span style="font-weight:800;font-size:16px">G</span> Continuar com Google
-    </button>
+<header>
+<h2>Zuli</h2>
+<p>Agendamento profissional de serviços</p>
+</header>
 
 
+<nav>
 
-    <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:20px;line-height:1.7">
-      Ao continuar você aceita os <span style="color:var(--ouro);cursor:pointer">Termos de Uso</span> e a <span style="color:var(--ouro);cursor:pointer">Política de Privacidade</span>
-    </p>
-  </div>
+<button onclick="mostrar('login')">Login</button>
+<button onclick="mostrar('cadastro')">Cadastro</button>
+<button onclick="mostrar('servicos')">Serviços</button>
+<button onclick="mostrar('agenda')">Agenda</button>
+
+</nav>
+
+
+<div class="container">
+
+
+<div id="login" class="card">
+
+<h3>Login</h3>
+
+<input id="login_usuario" placeholder="Usuário">
+<input id="login_senha" placeholder="Senha">
+
+<button onclick="login()">Entrar</button>
+
 </div>
 
-<!-- ════════════════════════════════════
-     VIEW: CLIENTE
-════════════════════════════════════ -->
-<div class="view" id="view-cliente">
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="navbar-logo" onclick="irPara('view-cliente','sec-busca')">Z<span>uli</span></div>
-    <div class="navbar-links">
-      <button class="nav-btn" onclick="irPara('view-cliente','sec-busca')">🔍 Buscar</button>
-      <button class="nav-btn" onclick="irPara('view-cliente','sec-agendamentos-cli')">📅 Agendamentos</button>
-      <button class="nav-btn" onclick="irPara('view-cliente','sec-avaliacoes-cli')">⭐ Avaliações</button>
-      <div class="nav-avatar" onclick="irPara('view-cliente','sec-perfil-cli')" id="nav-avatar-cli">👤</div>
-      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
-    </div>
-  </nav>
 
-  <div class="layout">
-    <!-- SIDEBAR CLIENTE -->
-    <aside class="sidebar">
-      <div class="sidebar-section">Menu</div>
-      <button class="sidebar-item active" onclick="mostrarSecao('cli','sec-busca',this)">
-        <span class="icon">🔍</span> Buscar Profissionais
-      </button>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-agendamentos-cli',this)">
-        <span class="icon">📅</span> Meus Agendamentos
-        <span class="sidebar-badge" id="badge-agend">2</span>
-      </button>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-favoritos',this)">
-        <span class="icon">❤️</span> Favoritos
-      </button>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-avaliacoes-cli',this)">
-        <span class="icon">⭐</span> Minhas Avaliações
-      </button>
-      <div class="sidebar-section">Conta</div>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-perfil-cli',this)">
-        <span class="icon">👤</span> Meu Perfil
-      </button>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-notif-cli',this)">
-        <span class="icon">🔔</span> Notificações
-        <span class="sidebar-badge">3</span>
-      </button>
-      <button class="sidebar-item" onclick="mostrarSecao('cli','sec-config-cli',this)">
-        <span class="icon">⚙️</span> Configurações
-      </button>
-      <div style="margin-top:auto;padding-top:16px">
-        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)">
-          <span class="icon">🚪</span> Sair
-        </button>
-      </div>
-    </aside>
 
-    <!-- MAIN CLIENTE -->
-    <main class="main-content" id="main-cli">
+<div id="cadastro" class="card" style="display:none">
 
-      <!-- BUSCA -->
-      <section id="sec-busca">
-        <div class="section-header">
-          <h1>Encontre seu profissional ✨</h1>
-          <p>Mais de 200 profissionais disponíveis em todo o Brasil</p>
-        </div>
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input class="search-input" placeholder="Buscar por nome, serviço ou cidade..." oninput="filtrarProfs(this.value)">
-        </div>
-        <div class="filter-chips" id="filter-chips">
-          <div class="chip active" onclick="filtrarCategoria('todos',this)">Todos</div>
-          <div class="chip" onclick="filtrarCategoria('Unhas',this)">💅 Unhas</div>
-          <div class="chip" onclick="filtrarCategoria('Cabelo',this)">✂️ Cabelo</div>
-          <div class="chip" onclick="filtrarCategoria('Estética',this)">🧖 Estética</div>
-          <div class="chip" onclick="filtrarCategoria('Barbearia',this)">🧔 Barbearia</div>
-          <div class="chip" onclick="filtrarCategoria('Massagem',this)">💆 Massagem</div>
-          <div class="chip" onclick="filtrarCategoria('Maquiagem',this)">💄 Maquiagem</div>
-        </div>
-        <div class="prof-grid" id="prof-grid"></div>
-      </section>
+<h3>Cadastro</h3>
 
-      <!-- AGENDAMENTOS CLIENTE -->
-      <section id="sec-agendamentos-cli" class="hidden">
-        <div class="section-header">
-          <h1>Meus Agendamentos 📅</h1>
-          <p>Acompanhe seus serviços agendados e histórico</p>
-        </div>
-        <div class="filter-chips">
-          <div class="chip active" onclick="filtrarAgend('todos',this)">Todos</div>
-          <div class="chip" onclick="filtrarAgend('confirmado',this)">✅ Confirmados</div>
-          <div class="chip" onclick="filtrarAgend('pendente',this)">⏳ Pendentes</div>
-          <div class="chip" onclick="filtrarAgend('concluido',this)">🏁 Concluídos</div>
-          <div class="chip" onclick="filtrarAgend('cancelado',this)">❌ Cancelados</div>
-        </div>
-        <div id="lista-agend-cli">
-          <!-- Agendamento 1 -->
-          <div class="agend-card">
-            <div class="agend-dot">💅</div>
-            <div class="agend-info">
-              <div class="agend-nome">Manicure Gel — Camila Costa</div>
-              <div class="agend-det">Vila Madalena, SP · 90 min</div>
-              <div style="margin-top:8px"><span class="badge badge-verde">✅ Confirmado</span></div>
-            </div>
-            <div class="agend-time">
-              <div class="agend-date">Amanhã · 14:00</div>
-              <div class="agend-val">R$ 65,00</div>
-              <button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="cancelarAgend()">Cancelar</button>
-            </div>
-          </div>
-          <!-- Agendamento 2 -->
-          <div class="agend-card">
-            <div class="agend-dot">✂️</div>
-            <div class="agend-info">
-              <div class="agend-nome">Corte + Escova — Rafael Melo</div>
-              <div class="agend-det">Pinheiros, SP · 60 min</div>
-              <div style="margin-top:8px"><span class="badge badge-amarelo">⏳ Aguardando pagamento</span></div>
-            </div>
-            <div class="agend-time">
-              <div class="agend-date">Sex, 28 · 10:30</div>
-              <div class="agend-val">R$ 90,00</div>
-              <button class="btn btn-gold btn-xs" style="margin-top:8px">Pagar</button>
-            </div>
-          </div>
-          <!-- Agendamento 3 -->
-          <div class="agend-card">
-            <div class="agend-dot" style="background:var(--creme2)">🧖</div>
-            <div class="agend-info">
-              <div class="agend-nome">Limpeza de Pele — Julia Pires</div>
-              <div class="agend-det">Moema, SP · 60 min</div>
-              <div style="margin-top:8px"><span class="badge badge-cinza">🏁 Concluído</span></div>
-            </div>
-            <div class="agend-time">
-              <div class="agend-date">15 mar · 15:00</div>
-              <div class="agend-val">R$ 120,00</div>
-              <button class="btn btn-outline btn-xs" style="margin-top:8px" onclick="abrirAvaliar()">Avaliar ⭐</button>
-            </div>
-          </div>
-        </div>
-      </section>
+<input id="cad_usuario" placeholder="Usuário">
+<input id="cad_senha" placeholder="Senha">
 
-      <!-- FAVORITOS -->
-      <section id="sec-favoritos" class="hidden">
-        <div class="section-header">
-          <h1>Favoritos ❤️</h1>
-          <p>Seus profissionais salvos para agendar rapidamente</p>
-        </div>
-        <div class="prof-grid" id="grid-favoritos"></div>
-      </section>
+<button onclick="cadastro()">Cadastrar</button>
 
-      <!-- AVALIAÇÕES CLIENTE -->
-      <section id="sec-avaliacoes-cli" class="hidden">
-        <div class="section-header">
-          <h1>Minhas Avaliações ⭐</h1>
-          <p>Avaliações que você deixou para os profissionais</p>
-        </div>
-        <div class="aval-card">
-          <div class="aval-header">
-            <div class="aval-nome">Julia Pires — Limpeza de Pele</div>
-            <div class="stars">★★★★★</div>
-          </div>
-          <div class="aval-texto">"Atendimento incrível, muito profissional e pontual. Minha pele ficou perfeita!"</div>
-          <div class="aval-servico">15 de março de 2026</div>
-        </div>
-        <div class="aval-card">
-          <div class="aval-header">
-            <div class="aval-nome">Camila Costa — Manicure Gel</div>
-            <div class="stars">★★★★★</div>
-          </div>
-          <div class="aval-texto">"Adorei o resultado! Durou mais de 3 semanas sem lascar."</div>
-          <div class="aval-servico">5 de março de 2026</div>
-        </div>
-      </section>
-
-      <!-- PERFIL CLIENTE -->
-      <section id="sec-perfil-cli" class="hidden">
-        <div class="section-header">
-          <h1>Meu Perfil 👤</h1>
-        </div>
-        <div class="perfil-header-card">
-          <div class="perfil-big-avatar">👩</div>
-          <div class="perfil-header-info">
-            <h2 id="perfil-nome-cli">Ana Lima</h2>
-            <p id="perfil-email-cli">ana@email.com</p>
-            <p style="color:rgba(255,255,255,.4);font-size:12px;margin-top:4px">Cliente desde janeiro 2026</p>
-          </div>
-        </div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Editar informações</h3>
-          <div class="input-group"><label class="input-label">Nome completo</label><input class="input" value="Ana Lima"></div>
-          <div class="input-group"><label class="input-label">E-mail</label><input class="input" value="ana@email.com" type="email"></div>
-          <div class="input-group"><label class="input-label">Telefone</label><input class="input" value="(11) 99999-0000"></div>
-          <div class="input-group"><label class="input-label">Cidade</label><input class="input" value="São Paulo, SP"></div>
-          <button class="btn btn-primary">Salvar alterações</button>
-        </div>
-      </section>
-
-      <!-- NOTIFICAÇÕES CLIENTE -->
-      <section id="sec-notif-cli" class="hidden">
-        <div class="section-header">
-          <h1>Notificações 🔔</h1>
-        </div>
-        <div class="card">
-          <div class="notif-item notif-unread">
-            <div class="notif-icon" style="background:var(--verde-cl)">✅</div>
-            <div class="notif-body">
-              <div class="notif-title">Agendamento confirmado!</div>
-              <div class="notif-text">Sua manicure gel com Camila Costa foi confirmada para amanhã às 14:00.</div>
-              <div class="notif-time">Há 2 horas</div>
-            </div>
-          </div>
-          <div class="notif-item notif-unread">
-            <div class="notif-icon" style="background:var(--azul-cl)">💳</div>
-            <div class="notif-body">
-              <div class="notif-title">Pagamento recebido</div>
-              <div class="notif-text">Recebemos seu pagamento de R$ 65,00 via Pix.</div>
-              <div class="notif-time">Há 2 horas</div>
-            </div>
-          </div>
-          <div class="notif-item notif-unread">
-            <div class="notif-icon" style="background:#FEF9EC">⭐</div>
-            <div class="notif-body">
-              <div class="notif-title">Avalie seu atendimento</div>
-              <div class="notif-text">Como foi a limpeza de pele com Julia Pires? Deixe sua avaliação!</div>
-              <div class="notif-time">Há 7 dias</div>
-            </div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-icon" style="background:var(--rosa2,#F5D9DB)">💅</div>
-            <div class="notif-body">
-              <div class="notif-title">Nova profissional disponível!</div>
-              <div class="notif-text">Marina Silva, especialista em unhas artísticas, acabou de entrar na Zuli.</div>
-              <div class="notif-time">Há 2 dias</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CONFIGURAÇÕES CLIENTE -->
-      <section id="sec-config-cli" class="hidden">
-        <div class="section-header">
-          <h1>Configurações ⚙️</h1>
-        </div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Notificações</h3>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>E-mail de confirmação</h4><p>Receber e-mail ao confirmar agendamento</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>Lembrete 24h antes</h4><p>Lembrete do agendamento no dia anterior</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>Promoções e novidades</h4><p>Ofertas e novos profissionais na sua área</p></div><div class="toggle" onclick="toggleSwitch(this)"></div></div>
-        </div>
-        <div class="card" style="margin-top:16px">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Segurança</h3>
-          <div class="input-group"><label class="input-label">Senha atual</label><input class="input" type="password" placeholder="••••••••"></div>
-          <div class="input-group"><label class="input-label">Nova senha</label><input class="input" type="password" placeholder="••••••••"></div>
-          <button class="btn btn-primary">Alterar senha</button>
-        </div>
-        <div class="card" style="margin-top:16px;border-color:#FAAAA3">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:8px;color:var(--vermelho)">Zona de perigo</h3>
-          <p style="font-size:13px;color:var(--cinza);margin-bottom:16px">Essas ações são irreversíveis.</p>
-          <button class="btn btn-danger">Excluir minha conta</button>
-        </div>
-      </section>
-
-    </main>
-  </div>
 </div>
 
-<!-- ════════════════════════════════════
-     VIEW: PROFISSIONAL
-════════════════════════════════════ -->
-<div class="view" id="view-profissional">
-  <nav class="navbar">
-    <div class="navbar-logo">Z<span>uli</span> <span style="font-size:12px;color:rgba(255,255,255,.4);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400">Profissional</span></div>
-    <div class="navbar-links">
-      <div class="nav-avatar" id="nav-avatar-prof">💅</div>
-      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
-    </div>
-  </nav>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-section">Painel</div>
-      <button class="sidebar-item active" onclick="mostrarSecao('prof','sec-dash-prof',this)"><span class="icon">📊</span> Dashboard</button>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-agenda-prof',this)"><span class="icon">📅</span> Minha Agenda<span class="sidebar-badge">3</span></button>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-servicos-prof',this)"><span class="icon">✂️</span> Meus Serviços</button>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-ganhos-prof',this)"><span class="icon">💰</span> Ganhos</button>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-aval-prof',this)"><span class="icon">⭐</span> Avaliações</button>
-      <div class="sidebar-section">Conta</div>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-perfil-prof',this)"><span class="icon">👤</span> Meu Perfil</button>
-      <button class="sidebar-item" onclick="mostrarSecao('prof','sec-notif-prof',this)"><span class="icon">🔔</span> Notificações<span class="sidebar-badge">2</span></button>
-      <div style="margin-top:auto;padding-top:16px">
-        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)"><span class="icon">🚪</span> Sair</button>
-      </div>
-    </aside>
 
-    <main class="main-content" id="main-prof">
+<div id="servicos" class="card" style="display:none">
 
-      <!-- DASHBOARD PROF -->
-      <section id="sec-dash-prof">
-        <div class="section-header">
-          <h1>Olá, Camila! 👋</h1>
-          <p>Aqui está um resumo do seu desempenho este mês</p>
-        </div>
+<h3>Serviços disponíveis</h3>
 
-        <div class="stat-grid">
-          <div class="stat-card">
-            <div class="stat-icon" style="background:var(--verde-cl)">💰</div>
-            <div class="stat-val">R$ 2.840</div>
-            <div class="stat-label">Ganhos este mês</div>
-            <div class="stat-change text-verde">↑ 18% vs mês anterior</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:var(--azul-cl)">📅</div>
-            <div class="stat-val">43</div>
-            <div class="stat-label">Agendamentos</div>
-            <div class="stat-change text-verde">↑ 12% vs mês anterior</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:#FEF9EC">⭐</div>
-            <div class="stat-val">4.9</div>
-            <div class="stat-label">Avaliação média</div>
-            <div class="stat-change" style="color:var(--cinza)">→ Estável</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:var(--rosa2,#F5D9DB)">👥</div>
-            <div class="stat-val">38</div>
-            <div class="stat-label">Clientes únicos</div>
-            <div class="stat-change text-verde">↑ 8 novos este mês</div>
-          </div>
-        </div>
+<select id="servico">
 
-        <!-- Gráfico de ganhos -->
-        <div class="card" style="margin-bottom:24px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <h3 style="font-family:'Fraunces',serif;font-size:18px">Ganhos por semana</h3>
-            <span class="badge badge-verde">Março 2026</span>
-          </div>
-          <div class="ganhos-bars" id="ganhos-chart">
-            <div class="bar-item"><div class="bar-fill" style="height:60%"></div><div class="bar-label">S1</div></div>
-            <div class="bar-item"><div class="bar-fill" style="height:75%"></div><div class="bar-label">S2</div></div>
-            <div class="bar-item"><div class="bar-fill" style="height:50%"></div><div class="bar-label">S3</div></div>
-            <div class="bar-item"><div class="bar-fill" style="height:90%"></div><div class="bar-label">S4</div></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--cinza)">
-            <span>R$ 480</span><span>R$ 620</span><span>R$ 520</span><span>R$ 780</span>
-          </div>
-        </div>
+<option>Corte</option>
+<option>Barba</option>
+<option>Sobrancelha</option>
 
-        <!-- Próximos agendamentos -->
-        <div class="table-wrap">
-          <div class="table-header">
-            <div class="table-title">Próximos agendamentos</div>
-            <button class="btn btn-outline btn-sm" onclick="mostrarSecao('prof','sec-agenda-prof',document.querySelector('#main-prof .sidebar-item:nth-child(2))'))">Ver todos</button>
-          </div>
-          <table>
-            <thead><tr><th>Cliente</th><th>Serviço</th><th>Data/Hora</th><th>Valor</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><div style="font-weight:600">Ana Lima</div></td><td>Manicure Gel</td><td>Amanhã · 14:00</td><td style="color:var(--ouro);font-weight:700">R$ 65</td><td><span class="badge badge-verde">Confirmado</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
-              <tr><td><div style="font-weight:600">Bruna M.</div></td><td>Pedicure</td><td>Sex · 10:00</td><td style="color:var(--ouro);font-weight:700">R$ 55</td><td><span class="badge badge-amarelo">Aguardando</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
-              <tr><td><div style="font-weight:600">Carla S.</div></td><td>Mani + Pedi</td><td>Sáb · 14:30</td><td style="color:var(--ouro);font-weight:700">R$ 95</td><td><span class="badge badge-verde">Confirmado</span></td><td><button class="btn btn-outline btn-xs">Detalhes</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+</select>
 
-      <!-- AGENDA PROF -->
-      <section id="sec-agenda-prof" class="hidden">
-        <div class="section-header">
-          <h1>Minha Agenda 📅</h1>
-          <p>Gerencie seus horários e agendamentos</p>
-        </div>
-        <div style="display:flex;gap:16px;margin-bottom:24px">
-          <button class="btn btn-primary">+ Bloquear horário</button>
-          <button class="btn btn-outline">Definir disponibilidade</button>
-        </div>
-        <div class="agend-card">
-          <div class="agend-dot">💅</div>
-          <div class="agend-info"><div class="agend-nome">Ana Lima — Manicure Gel</div><div class="agend-det">(11) 99999-0000 · 90 min</div><div style="margin-top:8px"><span class="badge badge-verde">✅ Confirmado</span></div></div>
-          <div class="agend-time"><div class="agend-date">Amanhã · 14:00</div><div class="agend-val">R$ 57,20 (líquido)</div><div style="display:flex;gap:6px;margin-top:8px"><button class="btn btn-gold btn-xs">✅ Concluir</button><button class="btn btn-danger btn-xs">Cancelar</button></div></div>
-        </div>
-        <div class="agend-card">
-          <div class="agend-dot">💅</div>
-          <div class="agend-info"><div class="agend-nome">Bruna M. — Pedicure</div><div class="agend-det">(11) 98888-1111 · 60 min</div><div style="margin-top:8px"><span class="badge badge-amarelo">⏳ Aguardando pagamento</span></div></div>
-          <div class="agend-time"><div class="agend-date">Sex · 10:00</div><div class="agend-val">R$ 48,40 (líquido)</div></div>
-        </div>
-      </section>
+<button onclick="irAgenda()">Agendar</button>
 
-      <!-- SERVIÇOS PROF -->
-      <section id="sec-servicos-prof" class="hidden">
-        <div class="section-header">
-          <h1>Meus Serviços ✂️</h1>
-          <p>Gerencie os serviços que você oferece</p>
-        </div>
-        <button class="btn btn-primary" style="margin-bottom:24px" onclick="abrirModal('modal-add-servico')">+ Adicionar serviço</button>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Serviço</th><th>Duração</th><th>Preço</th><th>Agendamentos</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:600">Manicure simples</td><td>45 min</td><td style="color:var(--ouro);font-weight:700">R$ 45</td><td>128</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
-              <tr><td style="font-weight:600">Manicure gel</td><td>90 min</td><td style="color:var(--ouro);font-weight:700">R$ 65</td><td>94</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
-              <tr><td style="font-weight:600">Pedicure completa</td><td>60 min</td><td style="color:var(--ouro);font-weight:700">R$ 55</td><td>76</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
-              <tr><td style="font-weight:600">Mani + Pedi combo</td><td>120 min</td><td style="color:var(--ouro);font-weight:700">R$ 95</td><td>52</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Editar</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- GANHOS PROF -->
-      <section id="sec-ganhos-prof" class="hidden">
-        <div class="section-header">
-          <h1>Ganhos 💰</h1>
-          <p>Acompanhe seus repasses e histórico financeiro</p>
-        </div>
-        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
-          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 2.840</div><div class="stat-label">Este mês</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📊</div><div class="stat-val">R$ 28.400</div><div class="stat-label">Total acumulado</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:#FEF9EC">⏳</div><div class="stat-val">R$ 171,60</div><div class="stat-label">A receber (D+2)</div></div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-header"><div class="table-title">Histórico de repasses</div></div>
-          <table>
-            <thead><tr><th>Data</th><th>Serviço</th><th>Valor bruto</th><th>Taxa Zuli (12%)</th><th>Você recebeu</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td>22/03/2026</td><td>Manicure Gel</td><td>R$ 65,00</td><td style="color:var(--cinza)">R$ 7,80</td><td style="color:var(--verde);font-weight:700">R$ 57,20</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>21/03/2026</td><td>Pedicure</td><td>R$ 55,00</td><td style="color:var(--cinza)">R$ 6,60</td><td style="color:var(--verde);font-weight:700">R$ 48,40</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>20/03/2026</td><td>Mani + Pedi</td><td>R$ 95,00</td><td style="color:var(--cinza)">R$ 11,40</td><td style="color:var(--verde);font-weight:700">R$ 83,60</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>23/03/2026</td><td>Manicure simples</td><td>R$ 45,00</td><td style="color:var(--cinza)">R$ 5,40</td><td style="color:var(--amarelo,#F39C12);font-weight:700">R$ 39,60</td><td><span class="badge badge-amarelo">Pendente D+2</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- AVALIAÇÕES PROF -->
-      <section id="sec-aval-prof" class="hidden">
-        <div class="section-header">
-          <h1>Avaliações ⭐</h1>
-          <p>O que os clientes falam sobre você</p>
-        </div>
-        <div class="card" style="margin-bottom:24px;display:flex;gap:32px;align-items:center">
-          <div style="text-align:center">
-            <div style="font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--escuro)">4.9</div>
-            <div class="stars" style="font-size:20px">★★★★★</div>
-            <div style="font-size:13px;color:var(--cinza);margin-top:4px">847 avaliações</div>
-          </div>
-          <div style="flex:1">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;width:16px">5★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:85%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">720</span></div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;width:16px">4★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:12%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">98</span></div>
-            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;width:16px">3★</span><div style="flex:1;height:8px;background:var(--borda);border-radius:100px;overflow:hidden"><div style="height:100%;width:3%;background:var(--ouro);border-radius:100px"></div></div><span style="font-size:12px;color:var(--cinza)">29</span></div>
-          </div>
-        </div>
-        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Ana Lima</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Camila é incrível! Manicure perfeita, super caprichosa. Já é a terceira vez que vou e sempre fico satisfeita."</div><div class="aval-servico">Manicure Gel · 22 mar 2026</div></div>
-        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Fernanda S.</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Melhor nail designer que já fui. Durou 3 semanas sem lascar nada!"</div><div class="aval-servico">Manicure Gel · 15 mar 2026</div></div>
-        <div class="aval-card"><div class="aval-header"><div class="aval-nome">Bruna M.</div><div class="stars">★★★★★</div></div><div class="aval-texto">"Pontual, atenciosa e o resultado ficou lindo. Super recomendo!"</div><div class="aval-servico">Pedicure · 10 mar 2026</div></div>
-      </section>
-
-      <!-- PERFIL PROF -->
-      <section id="sec-perfil-prof" class="hidden">
-        <div class="section-header"><h1>Meu Perfil 👤</h1></div>
-        <div class="perfil-header-card">
-          <div class="perfil-big-avatar">💅</div>
-          <div class="perfil-header-info">
-            <h2>Camila Costa</h2>
-            <p>Nail Designer · Vila Madalena, SP</p>
-            <p style="color:rgba(255,255,255,.4);font-size:12px;margin-top:4px">⭐ 4.9 · 847 avaliações · 3 anos na Zuli</p>
-          </div>
-        </div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Editar perfil público</h3>
-          <div class="input-group"><label class="input-label">Nome profissional</label><input class="input" value="Camila Costa"></div>
-          <div class="input-group"><label class="input-label">Especialidade</label><input class="input" value="Nail Designer"></div>
-          <div class="input-group"><label class="input-label">Cidade</label><input class="input" value="Vila Madalena, São Paulo"></div>
-          <div class="input-group"><label class="input-label">Mini bio (aparece no seu perfil público)</label><textarea class="input" rows="3" style="resize:none">Nail designer apaixonada pela arte nas unhas. 3 anos de experiência, especialista em gel e nail art.</textarea></div>
-          <button class="btn btn-primary">Salvar perfil</button>
-        </div>
-      </section>
-
-      <!-- NOTIFICAÇÕES PROF -->
-      <section id="sec-notif-prof" class="hidden">
-        <div class="section-header"><h1>Notificações 🔔</h1></div>
-        <div class="card">
-          <div class="notif-item notif-unread"><div class="notif-icon" style="background:var(--verde-cl)">📅</div><div class="notif-body"><div class="notif-title">Novo agendamento!</div><div class="notif-text">Ana Lima agendou Manicure Gel para amanhã às 14:00. Valor: R$ 65,00.</div><div class="notif-time">Há 2 horas</div></div></div>
-          <div class="notif-item notif-unread"><div class="notif-icon" style="background:#FEF9EC">⭐</div><div class="notif-body"><div class="notif-title">Nova avaliação 5 estrelas!</div><div class="notif-text">Fernanda S. deixou uma avaliação incrível para você.</div><div class="notif-time">Há 1 dia</div></div></div>
-          <div class="notif-item"><div class="notif-icon" style="background:var(--azul-cl)">💰</div><div class="notif-body"><div class="notif-title">Repasse recebido</div><div class="notif-text">R$ 57,20 foi depositado na sua conta Mercado Pago.</div><div class="notif-time">Há 2 dias</div></div></div>
-        </div>
-      </section>
-    </main>
-  </div>
 </div>
 
-<!-- ════════════════════════════════════
-     VIEW: ADMIN
-════════════════════════════════════ -->
-<div class="view" id="view-admin">
-  <nav class="navbar">
-    <div class="navbar-logo">Z<span>uli</span> <span style="font-size:12px;color:var(--ouro);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700">Admin</span></div>
-    <div class="navbar-links">
-      <span style="font-size:12px;color:rgba(255,255,255,.4)">Painel Administrativo</span>
-      <button class="nav-btn" onclick="sair()" style="color:rgba(255,255,255,.4)">Sair</button>
-    </div>
-  </nav>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-section">Visão Geral</div>
-      <button class="sidebar-item active" onclick="mostrarSecao('adm','sec-dash-adm',this)"><span class="icon">📊</span> Dashboard</button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-usuarios-adm',this)"><span class="icon">👥</span> Usuários<span class="sidebar-badge">1.2k</span></button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-profs-adm',this)"><span class="icon">💅</span> Profissionais</button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-agend-adm',this)"><span class="icon">📅</span> Agendamentos</button>
-      <div class="sidebar-section">Financeiro</div>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-fin-adm',this)"><span class="icon">💰</span> Receitas</button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-repasses-adm',this)"><span class="icon">🏦</span> Repasses</button>
-      <div class="sidebar-section">Plataforma</div>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-aval-adm',this)"><span class="icon">⭐</span> Avaliações</button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-notif-adm',this)"><span class="icon">📣</span> Notificações</button>
-      <button class="sidebar-item" onclick="mostrarSecao('adm','sec-config-adm',this)"><span class="icon">⚙️</span> Configurações</button>
-      <div style="margin-top:auto;padding-top:16px">
-        <button class="sidebar-item" onclick="sair()" style="color:var(--vermelho)"><span class="icon">🚪</span> Sair</button>
-      </div>
-    </aside>
 
-    <main class="main-content" id="main-adm">
+<div id="agenda" class="card" style="display:none">
 
-      <!-- DASHBOARD ADMIN -->
-      <section id="sec-dash-adm">
-        <div class="section-header">
-          <h1>Dashboard 📊</h1>
-          <p>Visão geral da plataforma Zuli — Março 2026</p>
-        </div>
+<h3>Escolher horário</h3>
 
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 48.240</div><div class="stat-label">Receita do mês</div><div class="stat-change text-verde">↑ 22% vs fevereiro</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📅</div><div class="stat-val">4.020</div><div class="stat-label">Agendamentos</div><div class="stat-change text-verde">↑ 15% vs fevereiro</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:var(--roxo-cl)">👥</div><div class="stat-val">1.284</div><div class="stat-label">Clientes ativos</div><div class="stat-change text-verde">↑ 184 novos</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:#FEF9EC">💅</div><div class="stat-val">89</div><div class="stat-label">Profissionais ativos</div><div class="stat-change text-verde">↑ 12 novos</div></div>
-        </div>
+<input type="date" id="data">
+<input type="time" id="hora">
 
-        <!-- Tabela de últimas transações -->
-        <div class="table-wrap" style="margin-bottom:24px">
-          <div class="table-header">
-            <div class="table-title">Últimas transações</div>
-            <span class="badge badge-verde">🟢 Ao vivo</span>
-          </div>
-          <table>
-            <thead><tr><th>Cliente</th><th>Profissional</th><th>Serviço</th><th>Valor</th><th>Comissão Zuli</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td>Ana Lima</td><td>Camila Costa</td><td>Manicure Gel</td><td style="font-weight:600">R$ 65,00</td><td style="color:var(--verde);font-weight:700">R$ 7,80</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>Bruna M.</td><td>Rafael Melo</td><td>Corte + Escova</td><td style="font-weight:600">R$ 90,00</td><td style="color:var(--amarelo,#F39C12);font-weight:700">R$ 10,80</td><td><span class="badge badge-amarelo">Pendente</span></td></tr>
-              <tr><td>Carla S.</td><td>Julia Pires</td><td>Limpeza de Pele</td><td style="font-weight:600">R$ 120,00</td><td style="color:var(--verde);font-weight:700">R$ 14,40</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>Diego R.</td><td>Paulo B.</td><td>Corte Masculino</td><td style="font-weight:600">R$ 50,00</td><td style="color:var(--verde);font-weight:700">R$ 6,00</td><td><span class="badge badge-verde">Pago</span></td></tr>
-              <tr><td>Elena P.</td><td>Camila Costa</td><td>Pedicure</td><td style="font-weight:600">R$ 55,00</td><td style="color:var(--vermelho);font-weight:700">R$ 6,60</td><td><span class="badge badge-vermelho">Cancelado</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+<button onclick="agendar()">Confirmar</button>
 
-      <!-- USUÁRIOS ADMIN -->
-      <section id="sec-usuarios-adm" class="hidden">
-        <div class="section-header"><h1>Usuários 👥</h1><p>Gerenciar todos os clientes cadastrados</p></div>
-        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" placeholder="Buscar usuário por nome ou e-mail..."></div>
-        <div class="table-wrap">
-          <div class="table-header">
-            <div class="table-title">1.284 clientes cadastrados</div>
-            <button class="btn btn-primary btn-sm">Exportar CSV</button>
-          </div>
-          <table>
-            <thead><tr><th>Nome</th><th>E-mail</th><th>Cadastro</th><th>Agendamentos</th><th>Total gasto</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:600">Ana Lima</td><td>ana@email.com</td><td>Jan 2026</td><td>12</td><td>R$ 680</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
-              <tr><td style="font-weight:600">Bruna M.</td><td>bruna@email.com</td><td>Fev 2026</td><td>5</td><td>R$ 290</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
-              <tr><td style="font-weight:600">Carlos F.</td><td>carlos@email.com</td><td>Mar 2026</td><td>2</td><td>R$ 110</td><td><span class="badge badge-verde">Ativo</span></td><td><button class="btn btn-outline btn-xs">Ver</button></td></tr>
-              <tr><td style="font-weight:600">Diana S.</td><td>diana@email.com</td><td>Jan 2026</td><td>0</td><td>R$ 0</td><td><span class="badge badge-cinza">Inativo</span></td><td><button class="btn btn-danger btn-xs">Bloquear</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- PROFISSIONAIS ADMIN -->
-      <section id="sec-profs-adm" class="hidden">
-        <div class="section-header"><h1>Profissionais 💅</h1><p>Gerenciar todos os profissionais da plataforma</p></div>
-        <div style="display:flex;gap:12px;margin-bottom:24px">
-          <button class="btn btn-primary btn-sm" onclick="abrirModal('modal-add-prof')">+ Adicionar profissional</button>
-          <button class="btn btn-outline btn-sm">Exportar CSV</button>
-        </div>
-        <div class="table-wrap">
-          <div class="table-header"><div class="table-title">89 profissionais cadastrados</div><span class="badge badge-verde">12 novos este mês</span></div>
-          <table>
-            <thead><tr><th>Profissional</th><th>Categoria</th><th>Cidade</th><th>Avaliação</th><th>Agend. mês</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><div style="font-weight:600">Camila Costa</div></td><td>Nail Designer</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★★</span> 4.9</td><td>43</td><td><span class="badge badge-verde">Ativo</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-xs">Ver</button><button class="btn btn-danger btn-xs">Suspender</button></div></td></tr>
-              <tr><td><div style="font-weight:600">Rafael Melo</div></td><td>Cabeleireiro</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★☆</span> 4.8</td><td>38</td><td><span class="badge badge-verde">Ativo</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-xs">Ver</button><button class="btn btn-danger btn-xs">Suspender</button></div></td></tr>
-              <tr><td><div style="font-weight:600">Julia Pires</div></td><td>Esteticista</td><td>São Paulo</td><td><span class="stars" style="font-size:12px">★★★★★</span> 5.0</td><td>29</td><td><span class="badge badge-amarelo">Pendente</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-gold btn-xs">Aprovar</button><button class="btn btn-danger btn-xs">Recusar</button></div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- AGENDAMENTOS ADMIN -->
-      <section id="sec-agend-adm" class="hidden">
-        <div class="section-header"><h1>Agendamentos 📅</h1><p>Visão geral de todos os agendamentos</p></div>
-        <div class="filter-chips">
-          <div class="chip active">Todos</div>
-          <div class="chip">✅ Confirmados</div>
-          <div class="chip">⏳ Pendentes</div>
-          <div class="chip">❌ Cancelados</div>
-          <div class="chip">🏁 Concluídos</div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Cliente</th><th>Profissional</th><th>Serviço</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td style="color:var(--cinza)">#4021</td><td>Ana Lima</td><td>Camila Costa</td><td>Manicure Gel</td><td>23/03 14:00</td><td style="font-weight:600">R$ 65</td><td><span class="badge badge-verde">Confirmado</span></td></tr>
-              <tr><td style="color:var(--cinza)">#4020</td><td>Bruna M.</td><td>Rafael Melo</td><td>Corte+Escova</td><td>25/03 10:30</td><td style="font-weight:600">R$ 90</td><td><span class="badge badge-amarelo">Pendente</span></td></tr>
-              <tr><td style="color:var(--cinza)">#4019</td><td>Carla S.</td><td>Julia Pires</td><td>Limpeza Pele</td><td>22/03 15:00</td><td style="font-weight:600">R$ 120</td><td><span class="badge badge-cinza">Concluído</span></td></tr>
-              <tr><td style="color:var(--cinza)">#4018</td><td>Diego R.</td><td>Paulo B.</td><td>Corte Masc.</td><td>21/03 11:00</td><td style="font-weight:600">R$ 50</td><td><span class="badge badge-cinza">Concluído</span></td></tr>
-              <tr><td style="color:var(--cinza)">#4017</td><td>Elena P.</td><td>Camila Costa</td><td>Pedicure</td><td>20/03 16:00</td><td style="font-weight:600">R$ 55</td><td><span class="badge badge-vermelho">Cancelado</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- FINANCEIRO ADMIN -->
-      <section id="sec-fin-adm" class="hidden">
-        <div class="section-header"><h1>Receitas 💰</h1><p>Acompanhe as comissões recebidas pela Zuli</p></div>
-        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
-          <div class="stat-card"><div class="stat-icon" style="background:var(--verde-cl)">💰</div><div class="stat-val">R$ 48.240</div><div class="stat-label">Receita total do mês</div><div class="stat-change text-verde">↑ 22%</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:var(--azul-cl)">📈</div><div class="stat-val">R$ 12,00</div><div class="stat-label">Ticket médio de comissão</div><div class="stat-change text-verde">↑ R$ 0,80</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:var(--roxo-cl)">🏦</div><div class="stat-val">R$ 3.840</div><div class="stat-label">A receber este mês</div><div class="stat-change" style="color:var(--cinza)">Repasses pendentes</div></div>
-        </div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:16px">Receita por categoria</h3>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>💅 Unhas</span><span style="font-weight:600">R$ 18.400 (38%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:38%;background:var(--ouro);border-radius:100px"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>✂️ Cabelo</span><span style="font-weight:600">R$ 14.200 (29%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:29%;background:var(--ouro);border-radius:100px"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🧖 Estética</span><span style="font-weight:600">R$ 9.600 (20%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:20%;background:var(--ouro);border-radius:100px"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🧔 Barbearia</span><span style="font-weight:600">R$ 6.040 (13%)</span></div><div style="height:8px;background:var(--borda);border-radius:100px"><div style="height:100%;width:13%;background:var(--ouro);border-radius:100px"></div></div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- REPASSES ADMIN -->
-      <section id="sec-repasses-adm" class="hidden">
-        <div class="section-header"><h1>Repasses 🏦</h1><p>Controle os pagamentos aos profissionais</p></div>
-        <div class="table-wrap">
-          <div class="table-header"><div class="table-title">Repasses pendentes</div><button class="btn btn-gold btn-sm">Processar todos</button></div>
-          <table>
-            <thead><tr><th>Profissional</th><th>Agendamentos</th><th>Valor bruto</th><th>Comissão Zuli</th><th>A repassar</th><th>Prazo</th><th></th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:600">Camila Costa</td><td>43</td><td>R$ 3.228</td><td style="color:var(--verde)">R$ 387,36</td><td style="color:var(--ouro);font-weight:700">R$ 2.840,64</td><td>24/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
-              <tr><td style="font-weight:600">Rafael Melo</td><td>38</td><td>R$ 2.850</td><td style="color:var(--verde)">R$ 342,00</td><td style="color:var(--ouro);font-weight:700">R$ 2.508,00</td><td>24/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
-              <tr><td style="font-weight:600">Julia Pires</td><td>29</td><td>R$ 3.480</td><td style="color:var(--verde)">R$ 417,60</td><td style="color:var(--ouro);font-weight:700">R$ 3.062,40</td><td>25/03</td><td><button class="btn btn-gold btn-xs">Repassar</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- AVALIAÇÕES ADMIN -->
-      <section id="sec-aval-adm" class="hidden">
-        <div class="section-header"><h1>Avaliações ⭐</h1><p>Moderar avaliações da plataforma</p></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Cliente</th><th>Profissional</th><th>Nota</th><th>Comentário</th><th>Data</th><th></th></tr></thead>
-            <tbody>
-              <tr><td>Ana Lima</td><td>Camila Costa</td><td><span class="stars" style="font-size:12px">★★★★★</span></td><td style="max-width:200px;font-size:13px">"Incrível, super recomendo!"</td><td>22/03</td><td><button class="btn btn-danger btn-xs">Remover</button></td></tr>
-              <tr><td>Bruna M.</td><td>Rafael Melo</td><td><span class="stars" style="font-size:12px">★★★☆☆</span></td><td style="max-width:200px;font-size:13px">"Bom mas atrasou 20min"</td><td>20/03</td><td><button class="btn btn-danger btn-xs">Remover</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- NOTIFICAÇÕES ADMIN -->
-      <section id="sec-notif-adm" class="hidden">
-        <div class="section-header"><h1>Enviar Notificações 📣</h1><p>Comunique-se com usuários e profissionais</p></div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Nova notificação em massa</h3>
-          <div class="input-group"><label class="input-label">Destinatários</label><select class="input"><option>Todos os clientes</option><option>Todos os profissionais</option><option>Todos os usuários</option><option>Clientes inativos (30+ dias)</option></select></div>
-          <div class="input-group"><label class="input-label">Título</label><input class="input" placeholder="Ex: Nova funcionalidade disponível!"></div>
-          <div class="input-group"><label class="input-label">Mensagem</label><textarea class="input" rows="4" style="resize:none" placeholder="Escreva a mensagem aqui..."></textarea></div>
-          <div class="input-group"><label class="input-label">Canal</label>
-            <div style="display:flex;gap:12px;margin-top:8px">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked> <span style="font-size:14px">📧 E-mail</span></label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> <span style="font-size:14px">📱 Push</span></label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> <span style="font-size:14px">📲 SMS</span></label>
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="alert('Notificação enviada com sucesso! ✅')">📣 Enviar notificação</button>
-        </div>
-      </section>
-
-      <!-- CONFIG ADMIN -->
-      <section id="sec-config-adm" class="hidden">
-        <div class="section-header"><h1>Configurações ⚙️</h1></div>
-        <div class="card" style="margin-bottom:16px">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Configurações da plataforma</h3>
-          <div class="input-group"><label class="input-label">Taxa de comissão (%)</label><input class="input" value="12" type="number"></div>
-          <div class="input-group"><label class="input-label">Prazo de repasse (dias úteis)</label><input class="input" value="2" type="number"></div>
-          <div class="input-group"><label class="input-label">Taxa de cancelamento tardio (%)</label><input class="input" value="50" type="number"></div>
-          <button class="btn btn-primary">Salvar configurações</button>
-        </div>
-        <div class="card">
-          <h3 style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:20px">Status da plataforma</h3>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>Novos cadastros de clientes</h4><p>Permitir que novos clientes se cadastrem</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>Novos cadastros de profissionais</h4><p>Permitir que novos profissionais entrem</p></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
-          <div class="toggle-wrap"><div class="toggle-info"><h4>Modo manutenção</h4><p>Exibir página de manutenção para usuários</p></div><div class="toggle" onclick="toggleSwitch(this)"></div></div>
-        </div>
-      </section>
-
-    </main>
-  </div>
 </div>
 
-<!-- ════════ MODAIS ════════ -->
 
-<!-- Modal avaliar -->
-<div class="modal-overlay" id="modal-avaliar">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Avaliar atendimento ⭐</div>
-      <button class="modal-close" onclick="fecharModal('modal-avaliar')">✕</button>
-    </div>
-    <p style="font-size:14px;color:var(--cinza);margin-bottom:20px">Julia Pires — Limpeza de Pele · 15/03/2026</p>
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:48px;letter-spacing:8px;cursor:pointer" id="star-display">★★★★★</div>
-      <div style="font-size:13px;color:var(--cinza);margin-top:8px">Toque nas estrelas para avaliar</div>
-    </div>
-    <div class="input-group"><label class="input-label">Comentário (opcional)</label><textarea class="input" rows="3" style="resize:none" placeholder="Como foi o atendimento?"></textarea></div>
-    <button class="btn btn-gold btn-full" onclick="fecharModal('modal-avaliar');alert('Avaliação enviada! Obrigada ✅')">Enviar avaliação</button>
-  </div>
 </div>
 
-<!-- Modal adicionar serviço -->
-<div class="modal-overlay" id="modal-add-servico">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Novo serviço ✂️</div>
-      <button class="modal-close" onclick="fecharModal('modal-add-servico')">✕</button>
-    </div>
-    <div class="input-group"><label class="input-label">Nome do serviço</label><input class="input" placeholder="Ex: Manicure artística"></div>
-    <div class="input-group"><label class="input-label">Duração (minutos)</label><input class="input" type="number" placeholder="60"></div>
-    <div class="input-group"><label class="input-label">Preço (R$)</label><input class="input" type="number" placeholder="65.00"></div>
-    <div class="input-group"><label class="input-label">Descrição</label><textarea class="input" rows="2" style="resize:none" placeholder="Descreva o serviço..."></textarea></div>
-    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-add-servico');alert('Serviço adicionado! ✅')">Adicionar serviço</button>
-  </div>
-</div>
 
-<!-- Modal adicionar profissional (admin) -->
-<div class="modal-overlay" id="modal-add-prof">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Adicionar profissional 💅</div>
-      <button class="modal-close" onclick="fecharModal('modal-add-prof')">✕</button>
-    </div>
-    <div class="input-group"><label class="input-label">Nome completo</label><input class="input" placeholder="Nome do profissional"></div>
-    <div class="input-group"><label class="input-label">E-mail</label><input class="input" type="email" placeholder="email@exemplo.com"></div>
-    <div class="input-group"><label class="input-label">Categoria</label><select class="input"><option>💅 Nail Designer</option><option>✂️ Cabeleireiro(a)</option><option>🧖 Esteticista</option><option>🧔 Barbeiro</option><option>💆 Massoterapeuta</option><option>💄 Maquiador(a)</option></select></div>
-    <div class="input-group"><label class="input-label">Cidade</label><input class="input" placeholder="São Paulo, SP"></div>
-    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-add-prof');alert('Profissional adicionado! ✅')">Adicionar profissional</button>
-  </div>
-</div>
+<footer>
 
-<!-- Modal agendar -->
-<div class="modal-overlay" id="modal-agendar">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Agendar serviço 📅</div>
-      <button class="modal-close" onclick="fecharModal('modal-agendar')">✕</button>
-    </div>
-    <div id="modal-prof-info" style="display:flex;gap:16px;align-items:center;background:var(--creme);border-radius:14px;padding:16px;margin-bottom:20px">
-      <div class="prof-avatar pa-rosa" id="modal-prof-emoji">💅</div>
-      <div><div style="font-weight:700;font-size:16px" id="modal-prof-nome">Camila Costa</div><div style="font-size:13px;color:var(--cinza)" id="modal-prof-role">Nail Designer</div></div>
-    </div>
-    <div class="input-group"><label class="input-label">Serviço</label><select class="input" id="modal-servico"><option>Manicure simples — R$ 45 · 45min</option><option>Manicure gel — R$ 65 · 90min</option><option>Pedicure — R$ 55 · 60min</option><option>Mani + Pedi — R$ 95 · 120min</option></select></div>
-    <div class="input-group"><label class="input-label">Data</label><input class="input" type="date" id="modal-data"></div>
-    <div class="input-group"><label class="input-label">Horário</label><select class="input"><option>10:00</option><option>11:00</option><option>14:00</option><option>15:30</option><option>16:00</option><option>18:30</option></select></div>
-    <div style="background:var(--creme);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--cinza)">Serviço</span><span style="font-weight:600">Manicure gel</span></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--cinza)">Duração</span><span>90 minutos</span></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:var(--cinza)">Total</span><span style="font-weight:700;color:var(--ouro);font-size:16px">R$ 65,00</span></div>
-    </div>
-    <button class="btn btn-primary btn-full" onclick="fecharModal('modal-agendar');alert('Agendamento confirmado! Você receberá um e-mail de confirmação 📧')">Confirmar agendamento →</button>
-  </div>
-</div>
+Zuli © 2026  
+Sistema profissional de agendamento
+
+</footer>
+
 
 <script>
-// ═══════════════════════════════
-// DADOS DE DEMONSTRAÇÃO
-// ═══════════════════════════════
-const profissionaisMock = [
-  {nome:'Camila Costa',role:'Nail Designer',cat:'Unhas',emoji:'💅',cor:'pa-rosa',nota:4.9,preco:45,cidade:'Vila Madalena, SP',top:true},
-  {nome:'Rafael Melo',role:'Cabeleireiro',cat:'Cabelo',emoji:'✂️',cor:'pa-verde',nota:4.8,preco:70,cidade:'Pinheiros, SP',top:false},
-  {nome:'Julia Pires',role:'Esteticista',cat:'Estética',emoji:'🧖',cor:'pa-ouro',nota:5.0,preco:90,cidade:'Moema, SP',top:true},
-  {nome:'Paulo Barros',role:'Barbeiro',cat:'Barbearia',emoji:'🧔',cor:'pa-roxo',nota:4.7,preco:35,cidade:'Itaim Bibi, SP',top:false},
-  {nome:'Marina Silva',role:'Nail Artist',cat:'Unhas',emoji:'💅',cor:'pa-rosa',nota:4.9,preco:80,cidade:'Jardins, SP',top:true},
-  {nome:'Fernanda Lima',role:'Massagista',cat:'Massagem',emoji:'💆',cor:'pa-verde',nota:4.8,preco:100,cidade:'Brooklin, SP',top:false},
-  {nome:'Luana Costa',role:'Maquiadora',cat:'Maquiagem',emoji:'💄',cor:'pa-ouro',nota:5.0,preco:120,cidade:'Santana, SP',top:true},
-  {nome:'André Santos',role:'Barbeiro',cat:'Barbearia',emoji:'🧔',cor:'pa-roxo',nota:4.6,preco:40,cidade:'Lapa, SP',top:false},
-]
 
-let catAtual = 'todos'
-let tabAtual = 'entrar'
+function mostrar(id){
 
-// ═══════════════════════════════
-// NAVEGAÇÃO
-// ═══════════════════════════════
-function irPara(viewId, secId) {
-  mostrarView(viewId)
-  if(secId) {
-    const sec = document.getElementById(secId)
-    if(sec) sec.scrollIntoView({behavior:'smooth'})
-  }
+document.getElementById("login").style.display="none"
+document.getElementById("cadastro").style.display="none"
+document.getElementById("servicos").style.display="none"
+document.getElementById("agenda").style.display="none"
+
+document.getElementById(id).style.display="block"
+
 }
 
-function mostrarView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
-  document.getElementById(id).classList.add('active')
-  window.scrollTo(0,0)
-}
 
-function mostrarSecao(prefixo, secId, btn) {
-  const main = document.getElementById('main-'+prefixo)
-  main.querySelectorAll('section').forEach(s => s.classList.add('hidden'))
-  document.getElementById(secId).classList.remove('hidden')
-  if(btn) {
-    const sidebar = btn.closest('aside')
-    sidebar.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'))
-    btn.classList.add('active')
-  }
-}
 
-// ═══════════════════════════════
-// LOGIN / AUTH
-// ═══════════════════════════════
-function trocarTab(t) {
-  tabAtual = t
-  const isEntrar = t === 'entrar'
-  document.getElementById('tab-entrar').classList.toggle('active', isEntrar)
-  document.getElementById('tab-cadastrar').classList.toggle('active', !isEntrar)
-  document.getElementById('campo-nome-login').classList.toggle('hidden', isEntrar)
-  document.getElementById('campo-perfil-login').classList.toggle('hidden', isEntrar)
-  document.getElementById('btn-auth').textContent = isEntrar ? 'Entrar' : 'Criar conta'
-  limparAlertas()
-}
+function login(){
 
-function mostrarErroLogin(msg) {
-  const el = document.getElementById('login-erro')
-  el.textContent = '⚠️ ' + msg
-  el.classList.add('show')
-  document.getElementById('login-ok').classList.remove('show')
-}
-
-function mostrarOkLogin(msg) {
-  const el = document.getElementById('login-ok')
-  el.textContent = '✅ ' + msg
-  el.classList.add('show')
-  document.getElementById('login-erro').classList.remove('show')
-}
-
-function limparAlertas() {
-  document.getElementById('login-erro').classList.remove('show')
-  document.getElementById('login-ok').classList.remove('show')
-}
-
-async function autenticar() {
-  const email = document.getElementById('inp-email').value.trim()
-  const senha = document.getElementById('inp-senha').value.trim()
-  const btn   = document.getElementById('btn-auth')
-  if (!email || !senha) { mostrarErroLogin('Preencha e-mail e senha!'); return }
-  if (!email.includes('@')) { mostrarErroLogin('E-mail inválido!'); return }
-  if (senha.length < 6)  { mostrarErroLogin('Senha mínimo 6 caracteres!'); return }
-  btn.textContent = '⏳ Aguarde...'
-  btn.style.opacity = '0.7'
-  limparAlertas()
-  try {
-    if (tabAtual === 'entrar') {
-      const { error } = await db.auth.signInWithPassword({ email, password: senha })
-      if (error) { mostrarErroLogin('E-mail ou senha incorretos!') }
-      else { mostrarOkLogin('Bem-vindo! Redirecionando...'); setTimeout(() => entrarNoApp('cliente'), 800) }
-    } else {
-      const nome   = document.getElementById('inp-nome').value.trim()
-      const perfil = document.getElementById('inp-perfil').value
-      if (!nome) { mostrarErroLogin('Digite seu nome!'); btn.textContent='Criar conta'; btn.style.opacity='1'; return }
-      const { error } = await db.auth.signUp({ email, password: senha, options: { data: { nome, perfil } } })
-      if (error) { mostrarErroLogin(error.message) }
-      else { mostrarOkLogin('Conta criada! Confirme seu e-mail 📧') }
-    }
-  } catch(e) { mostrarErroLogin('Erro de conexão. Tente novamente.') }
-  btn.textContent = tabAtual === 'entrar' ? 'Entrar' : 'Criar conta'
-  btn.style.opacity = '1'
-}
-
-async function loginGoogle() {
-  try {
-    const { error } = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
-    if (error) mostrarErroLogin('Erro ao entrar com Google!')
-  } catch(e) { mostrarErroLogin('Google login indisponível no momento.') }
-}
-
-function demoLogin(tipo) {
-  perfilAtual = tipo
-  entrarNoApp(tipo)
-}
-
-function entrarNoApp(tipo) {
-  renderizarProfs()
-  renderizarFavoritos()
-  mostrarView('view-' + tipo)
-}
-
-async function sair() {
-  try { await db.auth.signOut() } catch(e) {}
-  mostrarView('view-login')
-}
-
-// Verificar sessão
-window.addEventListener('DOMContentLoaded', () => {
-  try {
-    db.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        const perfil = session.user?.user_metadata?.perfil || 'cliente'
-        entrarNoApp(perfil)
-      }
-    })
-  } catch(e) { console.log('Supabase não configurado — use demo') }
-  renderizarProfs()
-  renderizarFavoritos()
-  // Data mínima no modal de agendamento
-  const hoje = new Date().toISOString().split('T')[0]
-  const dataInput = document.getElementById('modal-data')
-  if(dataInput) { dataInput.min = hoje; dataInput.value = hoje }
+fetch("/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+usuario:login_usuario.value,
+senha:login_senha.value
 })
-
-// ═══════════════════════════════
-// PROFISSIONAIS
-// ═══════════════════════════════
-function renderizarProfs(lista) {
-  const grid = document.getElementById('prof-grid')
-  if (!grid) return
-  const profs = lista || profissionaisMock
-  grid.innerHTML = profs.map(p => `
-    <div class="prof-card-full" onclick="abrirAgendar('${p.nome}','${p.role}','${p.emoji}')">
-      <div class="prof-card-cover ${p.cor}">
-        ${p.emoji}
-        ${p.top ? '<div class="prof-card-badge">⭐ Top</div>' : ''}
-      </div>
-      <div class="prof-card-body">
-        <div class="prof-card-name">${p.nome}</div>
-        <div class="prof-card-role">${p.role} · ${p.cidade}</div>
-        <div class="prof-card-footer">
-          <div class="prof-card-rating">⭐ ${p.nota}</div>
-          <div class="prof-card-price">A partir de R$ ${p.preco}</div>
-        </div>
-        <button class="btn btn-primary btn-full" style="margin-top:12px">Agendar</button>
-      </div>
-    </div>
-  `).join('')
-}
-
-function renderizarFavoritos() {
-  const grid = document.getElementById('grid-favoritos')
-  if (!grid) return
-  const favs = profissionaisMock.filter(p => p.top)
-  grid.innerHTML = favs.map(p => `
-    <div class="prof-card-full" onclick="abrirAgendar('${p.nome}','${p.role}','${p.emoji}')">
-      <div class="prof-card-cover ${p.cor}">${p.emoji}<div class="prof-card-badge">❤️ Favorito</div></div>
-      <div class="prof-card-body">
-        <div class="prof-card-name">${p.nome}</div>
-        <div class="prof-card-role">${p.role} · ${p.cidade}</div>
-        <div class="prof-card-footer"><div class="prof-card-rating">⭐ ${p.nota}</div><div class="prof-card-price">A partir de R$ ${p.preco}</div></div>
-        <button class="btn btn-primary btn-full" style="margin-top:12px">Agendar</button>
-      </div>
-    </div>
-  `).join('')
-}
-
-function filtrarProfs(busca) {
-  const filtrados = profissionaisMock.filter(p =>
-    p.nome.toLowerCase().includes(busca.toLowerCase()) ||
-    p.role.toLowerCase().includes(busca.toLowerCase()) ||
-    p.cidade.toLowerCase().includes(busca.toLowerCase()) ||
-    p.cat.toLowerCase().includes(busca.toLowerCase())
-  )
-  renderizarProfs(filtrados)
-}
-
-function filtrarCategoria(cat, el) {
-  catAtual = cat
-  document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('active'))
-  el.classList.add('active')
-  const filtrados = cat === 'todos' ? profissionaisMock : profissionaisMock.filter(p => p.cat === cat)
-  renderizarProfs(filtrados)
-}
-
-function filtrarAgend(status, el) {
-  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'))
-  el.classList.add('active')
-}
-
-// ═══════════════════════════════
-// MODAIS
-// ═══════════════════════════════
-function abrirModal(id) { document.getElementById(id).classList.add('open') }
-function fecharModal(id) { document.getElementById(id).classList.remove('open') }
-
-function abrirAgendar(nome, role, emoji) {
-  document.getElementById('modal-prof-nome').textContent = nome
-  document.getElementById('modal-prof-role').textContent = role
-  document.getElementById('modal-prof-emoji').textContent = emoji
-  abrirModal('modal-agendar')
-}
-
-function abrirAvaliar() { abrirModal('modal-avaliar') }
-function cancelarAgend() { if(confirm('Cancelar este agendamento?')) alert('Agendamento cancelado. Reembolso em até 5 dias úteis.') }
-
-// Fechar modal clicando fora
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open') })
 })
+.then(r=>r.json())
+.then(d=>alert(d.status))
 
-// ═══════════════════════════════
-// UTILITÁRIOS
-// ═══════════════════════════════
-function toggleSwitch(el) { el.classList.toggle('on') }
+}
+
+
+
+function cadastro(){
+
+fetch("/cadastro",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+usuario:cad_usuario.value,
+senha:cad_senha.value
+})
+})
+.then(r=>r.json())
+.then(d=>alert(d.status))
+
+}
+
+
+
+function irAgenda(){
+
+mostrar("agenda")
+
+}
+
+
+
+function agendar(){
+
+fetch("/agendar",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+data:data.value,
+hora:hora.value
+})
+})
+.then(r=>r.json())
+.then(d=>alert(d.status))
+
+}
+
 </script>
+
+
 </body>
 </html>
